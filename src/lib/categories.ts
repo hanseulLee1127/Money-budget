@@ -45,6 +45,13 @@ export const DEFAULT_CATEGORIES: Category[] = [
     isDefault: true,
   },
   {
+    id: 'insurance',
+    name: 'Insurance',
+    color: '#0d9488', // teal-600
+    icon: '🛡️',
+    isDefault: true,
+  },
+  {
     id: 'entertainment',
     name: 'Entertainment',
     color: '#06b6d4', // cyan-500

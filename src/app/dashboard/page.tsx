@@ -39,6 +39,8 @@ function DashboardContent() {
   
   // 캘린더에서 선택된 날짜
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  // 캘린더 아래 화살표 점등: 아이템 있는 날 클릭 시 3초 후 사라짐
+  const [showCalendarDownArrow, setShowCalendarDownArrow] = useState(false);
 
   // Insights 탭: 미완성이라 숨김. true로 바꾸면 탭 노출
   const SHOW_INSIGHTS_TAB = false;
@@ -439,6 +441,17 @@ function DashboardContent() {
     
     return [...emptyDays, ...days];
   }, [selectedMonth]);
+
+  // 아이템 있는 날 클릭 시 아래 화살표 3초 점등 후 사라짐
+  useEffect(() => {
+    if (selectedDate && selectedDateTransactions.length > 0) {
+      setShowCalendarDownArrow(true);
+      const t = setTimeout(() => setShowCalendarDownArrow(false), 3000);
+      return () => clearTimeout(t);
+    } else {
+      setShowCalendarDownArrow(false);
+    }
+  }, [selectedDate, selectedDateTransactions.length]);
 
   if (authLoading || !user) {
     return (
@@ -996,8 +1009,10 @@ function DashboardContent() {
           return (
             /* 캘린더 탭 */
             <div className="max-w-4xl mx-auto space-y-4">
-              {/* 캘린더 */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">
+              {/* 캘린더 + 오른쪽 여백(화살표) */}
+              <div className="flex items-stretch gap-4">
+                {/* 캘린더 */}
+                <div className="flex-1 min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">
                 {/* 월 제목 with 네비게이션 및 요약 */}
                 <div className="mb-4">
                   <div className="flex items-center justify-between">
@@ -1144,7 +1159,21 @@ function DashboardContent() {
                   <span>Income</span>
                 </div>
               </div>
-            </div>
+                </div>
+
+                {/* 오른쪽 여백 중간: 아이템 있는 날 클릭 시 아래 방향 화살표 2개 점등 (3초 후 사라짐) */}
+                <div className="w-14 flex-shrink-0 flex flex-col items-center justify-center min-h-[320px]">
+                  {showCalendarDownArrow && (
+                    <div className="flex flex-col items-center gap-2 animate-bounce" aria-hidden>
+                      {[1, 2].map((i) => (
+                        <svg key={i} className="w-8 h-8 text-blue-500 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M19 9l-7 7-7-7" />
+                        </svg>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             
             {/* 선택된 날짜의 거래 목록 */}
             {selectedDate && (
