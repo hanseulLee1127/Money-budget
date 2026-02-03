@@ -37,14 +37,16 @@ export async function POST(request: NextRequest) {
           break;
         }
 
-        const subscription = await stripe.subscriptions.retrieve(subscriptionId) as Stripe.Subscription;
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
         const priceId = subscription.items.data[0]?.price.id;
         const plan = priceId === process.env.STRIPE_PRICE_PRO ? 'pro' : priceId === process.env.STRIPE_PRICE_BASIC ? 'basic' : null;
         if (!plan) {
           console.error('[Stripe webhook] Unknown price id:', priceId, 'expected BASIC:', process.env.STRIPE_PRICE_BASIC, 'PRO:', process.env.STRIPE_PRICE_PRO);
           break;
         }
-        const periodEnd = typeof subscription.current_period_end === 'number' ? subscription.current_period_end : 0;
+        const periodEnd = typeof (subscription as { current_period_end?: number }).current_period_end === 'number'
+          ? (subscription as { current_period_end: number }).current_period_end
+          : 0;
         console.log('[Stripe webhook] Setting subscription', { uid, plan, priceId });
         await setSubscriptionFromStripe(uid, {
           plan,
@@ -64,7 +66,9 @@ export async function POST(request: NextRequest) {
           const priceId = sub.items.data[0]?.price.id;
           const plan = priceId === process.env.STRIPE_PRICE_PRO ? 'pro' : priceId === process.env.STRIPE_PRICE_BASIC ? 'basic' : null;
           if (plan) {
-            const periodEnd = typeof sub.current_period_end === 'number' ? sub.current_period_end : 0;
+            const periodEnd = typeof (sub as { current_period_end?: number }).current_period_end === 'number'
+              ? (sub as { current_period_end: number }).current_period_end
+              : 0;
             await setSubscriptionFromStripe(uid, {
               plan,
               stripeCustomerId: sub.customer as string,
