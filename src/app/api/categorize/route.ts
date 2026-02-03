@@ -3,19 +3,24 @@ import OpenAI from 'openai';
 import { getCategoryNames } from '@/lib/categories';
 import { CategorizedTransaction } from '@/types';
 
+// OpenAI 클라이언트 초기화
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 export async function POST(request: NextRequest) {
   try {
-    // OpenAI API 키 확인 (빌드 시 모듈 로드 시점에는 클라이언트 생성 안 함)
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/37d305a8-3c44-4ff8-8053-bac24c843629',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'categorize/route.ts:12',message:'AI categorization started',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
+    // #endregion
+    
+    // OpenAI API 키 확인
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json(
         { success: false, error: 'OpenAI API key is not configured' },
         { status: 500 }
       );
     }
-
-    const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
 
     const body = await request.json();
     const { text } = body as { text: string };
