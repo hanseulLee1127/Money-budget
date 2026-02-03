@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { Suspense, useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -16,7 +16,7 @@ import EditTransactionModal from '@/components/EditTransactionModal';
 import DeleteRecurringModal from '@/components/DeleteRecurringModal';
 import InsightsTab from '@/components/InsightsTab';
 
-export default function DashboardPage() {
+function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading, signOut } = useAuthContext();
@@ -1292,5 +1292,17 @@ export default function DashboardPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600" />
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   );
 }
