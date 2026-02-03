@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthContext } from '@/components/AuthProvider';
@@ -8,6 +8,7 @@ import { useAuthContext } from '@/components/AuthProvider';
 export default function HomePage() {
   const router = useRouter();
   const { user, loading } = useAuthContext();
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   // 이미 로그인된 경우 대시보드로 리다이렉트
   useEffect(() => {
@@ -15,6 +16,22 @@ export default function HomePage() {
       router.push('/dashboard');
     }
   }, [user, loading, router]);
+
+  // 데모 비디오 2배속
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const setSpeed = () => {
+      video.playbackRate = 2;
+    };
+    video.addEventListener('loadedmetadata', setSpeed);
+    video.addEventListener('canplay', setSpeed);
+    setSpeed();
+    return () => {
+      video.removeEventListener('loadedmetadata', setSpeed);
+      video.removeEventListener('canplay', setSpeed);
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -30,7 +47,7 @@ export default function HomePage() {
       <nav className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="text-2xl font-bold text-blue-600">
-            Budget Tracker
+            Money Budget
           </div>
           <div className="space-x-4">
             <Link
@@ -53,12 +70,13 @@ export default function HomePage() {
       <main className="container mx-auto px-6 pt-20 pb-32">
         <div className="text-center max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-            Smart Budget Tracking
-            <span className="text-blue-600"> Made Simple</span>
+            No bank links.
+            <span className="text-blue-600"> No daily logging.</span>
           </h1>
           <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-            Upload your bank statements and let AI automatically categorize your expenses. 
-            Get insights into your spending habits with beautiful visualizations.
+            Just upload your credit card history or bank statement PDF once a month. 
+            AI categorizes everything—no sharing accounts, no risk to your personal info. 
+            Keep your budget with one upload.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -76,20 +94,42 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* 데모 비디오 - 얼마나 간단한지 직접 보여주기 (2배속) */}
+        <section className="mt-24 max-w-4xl mx-auto">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-3">
+            See how simple it is
+          </h2>
+          <p className="text-gray-600 text-center mb-8 max-w-xl mx-auto">
+            Upload PDF → AI categorizes → Review & save. No bank links, no daily logging.
+          </p>
+          <div className="rounded-2xl overflow-hidden shadow-xl border border-gray-200 bg-black">
+            <video
+              ref={videoRef}
+              src="/demo.mov"
+              controls
+              playsInline
+              className="w-full aspect-video object-contain"
+            >
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </section>
+
         {/* 기능 소개 */}
         <div className="mt-32 grid md:grid-cols-3 gap-8">
           {/* 기능 1 */}
           <div className="bg-white p-8 rounded-2xl shadow-lg">
             <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
               <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-3">
-              PDF Upload
+              No bank connections
             </h3>
             <p className="text-gray-600">
-              Simply upload your bank statement PDF and we&apos;ll extract all transactions automatically.
+              Your banks stay disconnected. No linking accounts—no risk to your personal info. 
+              You control what you upload.
             </p>
           </div>
 
@@ -97,14 +137,15 @@ export default function HomePage() {
           <div className="bg-white p-8 rounded-2xl shadow-lg">
             <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mb-6">
               <svg className="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-3">
-              AI Categorization
+              Upload PDF, once a month
             </h3>
             <p className="text-gray-600">
-              Our AI automatically categorizes your expenses. Review and adjust with drag-and-drop.
+              Credit card transaction history or bank statement—just upload the PDF. 
+              AI extracts and categorizes everything. No daily logging.
             </p>
           </div>
 
@@ -116,10 +157,11 @@ export default function HomePage() {
               </svg>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-3">
-              Visual Insights
+              Easy budget, one upload
             </h3>
             <p className="text-gray-600">
-              Beautiful charts and calendar views to understand your spending at a glance.
+              See where your money went with charts and a calendar. 
+              One upload per month is enough to keep your budget in shape.
             </p>
           </div>
         </div>
@@ -128,7 +170,7 @@ export default function HomePage() {
       {/* 푸터 */}
       <footer className="border-t border-gray-200 py-8">
         <div className="container mx-auto px-6 text-center text-gray-600">
-          <p>&copy; 2026 Budget Tracker. All rights reserved.</p>
+          <p>&copy; 2026 Money Budget. All rights reserved.</p>
         </div>
       </footer>
     </div>

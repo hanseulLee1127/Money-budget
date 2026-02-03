@@ -40,6 +40,9 @@ function DashboardContent() {
   // 캘린더에서 선택된 날짜
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
+  // Insights 탭: 미완성이라 숨김. true로 바꾸면 탭 노출
+  const SHOW_INSIGHTS_TAB = false;
+
   // 월 문자열을 안전하게 Date로 변환 (시간대 문제 방지)
   const parseMonthString = (monthStr: string): Date => {
     if (!monthStr) return new Date();
@@ -54,10 +57,10 @@ function DashboardContent() {
     return format(date, 'MMMM yyyy');
   };
 
-  // 인증 체크
+  // 인증 체크 (비로그인 시 랜딩 페이지로)
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push('/login');
+      router.push('/');
     }
   }, [user, authLoading, router]);
 
@@ -218,33 +221,19 @@ function DashboardContent() {
     }
   };
 
-  // 캘린더 월 네비게이션
+  // 캘린더 월 네비게이션: 데이터가 있는 달만 이동 (데이터 없는 달은 패스)
   const handlePreviousMonth = () => {
     if (!selectedMonth || availableMonths.length === 0) return;
-    
-    const [year, month] = selectedMonth.split('-').map(Number);
-    const prevDate = new Date(year, month - 2, 15);
-    const prevMonth = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, '0')}`;
-    
-    // 가장 오래된 달보다 이전으로는 못 가게 제한
-    const oldestMonth = availableMonths[availableMonths.length - 1];
-    if (prevMonth < oldestMonth) return;
-    
-    setSelectedMonth(prevMonth);
+    const prevMonths = availableMonths.filter((m) => m < selectedMonth);
+    const prevMonth = prevMonths[0]; // 내림차순이므로 첫 번째가 selectedMonth 바로 이전 달(데이터 있음)
+    if (prevMonth) setSelectedMonth(prevMonth);
   };
 
   const handleNextMonth = () => {
-    if (!selectedMonth) return;
-    
-    const [year, month] = selectedMonth.split('-').map(Number);
-    const nextDate = new Date(year, month, 15);
-    const nextMonth = `${nextDate.getFullYear()}-${String(nextDate.getMonth() + 1).padStart(2, '0')}`;
-    
-    // 현재 달보다 미래로는 못 가게 제한
-    const currentMonth = format(new Date(), 'yyyy-MM');
-    if (nextMonth > currentMonth) return;
-    
-    setSelectedMonth(nextMonth);
+    if (!selectedMonth || availableMonths.length === 0) return;
+    const nextMonths = availableMonths.filter((m) => m > selectedMonth);
+    const nextMonth = nextMonths[nextMonths.length - 1]; // 내림차순이므로 마지막이 selectedMonth 바로 다음 달(데이터 있음)
+    if (nextMonth) setSelectedMonth(nextMonth);
   };
 
   const handleSignOut = async () => {
@@ -313,10 +302,9 @@ function DashboardContent() {
     return sorted;
   }, [confirmedTransactions]);
 
-  // 초기 월 선택: 데이터가 있는 가장 최근 달
+  // 초기 월 선택: 데이터가 있는 달만 표시 (없는 달이면 가장 최근 달로)
   useEffect(() => {
     if (availableMonths.length > 0) {
-      // selectedMonth가 비어있거나 availableMonths에 없으면 첫 번째 항목으로 설정
       if (!selectedMonth || !availableMonths.includes(selectedMonth)) {
         setSelectedMonth(availableMonths[0]);
       }
@@ -474,7 +462,7 @@ function DashboardContent() {
               }}
               className="text-2xl font-bold text-blue-600 hover:text-blue-700 transition"
             >
-              Budget Tracker
+              Money Budget
             </button>
             <div className="flex items-center space-x-4">
               <Link
@@ -568,18 +556,20 @@ function DashboardContent() {
               >
                 Calendar
               </button>
-              <button
-                onClick={() => {
-                  setActiveTab('insights');
-                }}
-                className={`px-4 py-2 rounded-md transition ${
-                  activeTab === 'insights'
-                    ? 'bg-white text-gray-900 shadow'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                💡 Insights
-              </button>
+              {SHOW_INSIGHTS_TAB && (
+                <button
+                  onClick={() => {
+                    setActiveTab('insights');
+                  }}
+                  className={`px-4 py-2 rounded-md transition ${
+                    activeTab === 'insights'
+                      ? 'bg-white text-gray-900 shadow'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  💡 Insights
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -1000,25 +990,8 @@ function DashboardContent() {
         )}
 
         {activeTab === 'calendar' && (() => {
-          // 화살표 버튼 활성화 상태 계산
-          const oldestMonth = availableMonths.length > 0 ? availableMonths[availableMonths.length - 1] : '';
-          const newestMonth = availableMonths.length > 0 ? availableMonths[0] : ''; // 데이터가 있는 가장 최근 달
-          
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/37d305a8-3c44-4ff8-8053-bac24c843629',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard/page.tsx:994',message:'Calendar render - initial values',data:{selectedMonth,newestMonth,oldestMonth,availableMonths:availableMonths.slice(0,5)},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'H4'})}).catch(()=>{});
-          // #endregion
-          
-          const [year, month] = selectedMonth ? selectedMonth.split('-').map(Number) : [0, 0];
-          const prevDate = new Date(year, month - 2, 15);
-          const prevMonth = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, '0')}`;
-          
-          // 선택된 달이 데이터가 있는 가장 최근 달보다 이전이어야만 다음 달로 갈 수 있음
-          const canGoPrev = selectedMonth && oldestMonth && prevMonth >= oldestMonth;
-          const canGoNext = selectedMonth && newestMonth && selectedMonth < newestMonth;
-          
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/37d305a8-3c44-4ff8-8053-bac24c843629',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard/page.tsx:1008',message:'canGoNext calculation',data:{selectedMonth,newestMonth,comparison:selectedMonth<newestMonth,canGoNext,canGoPrev},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'H4'})}).catch(()=>{});
-          // #endregion
+          const canGoPrev = !!selectedMonth && availableMonths.some((m) => m < selectedMonth);
+          const canGoNext = !!selectedMonth && availableMonths.some((m) => m > selectedMonth);
 
           return (
             /* 캘린더 탭 */

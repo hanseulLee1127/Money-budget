@@ -10,8 +10,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Budget Tracker - Manage Your Finances",
-  description: "Upload bank statements and automatically categorize your expenses with AI",
+  title: "Money Budget - No Bank Links, One Upload Per Month",
+  description: "Upload credit card or bank statement PDFs. AI categorizes your spending—no daily logging, no personal info at risk.",
 };
 
 export default function RootLayout({

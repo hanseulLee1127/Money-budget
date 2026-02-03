@@ -25,10 +25,10 @@ export default function UploadPage() {
   const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
   const [subscriptionLoading, setSubscriptionLoading] = useState(true);
 
-  // 인증 체크
+  // 인증 체크 (비로그인 시 랜딩 페이지로)
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push('/login');
+      router.push('/');
     }
   }, [user, authLoading, router]);
 
@@ -133,7 +133,7 @@ export default function UploadPage() {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/dashboard" className="text-2xl font-bold text-blue-600">
-              Budget Tracker
+              Money Budget
             </Link>
             <div className="flex items-center space-x-4">
               <Link
@@ -159,10 +159,10 @@ export default function UploadPage() {
           {/* 헤더 */}
           <div className="text-center mb-10">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              Upload Bank Statement
+              Upload Bank Statement or Card History
             </h1>
             <p className="text-gray-600">
-              Upload your bank statement PDF and we&apos;ll automatically extract and categorize your transactions.
+              Upload your bank statement or credit card / debit card transaction history PDF and we&apos;ll automatically extract and categorize your transactions.
             </p>
           </div>
 
@@ -213,7 +213,7 @@ export default function UploadPage() {
             <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
               <h3 className="text-xl font-semibold text-gray-900 mb-2">PDF upload limit reached</h3>
               <p className="text-gray-600 mb-6">
-                Subscribe to upload more bank statements. Free trial: 1 upload. Plans: $5/month (3 uploads) or $10/month (10 uploads).
+                Subscribe to upload more PDFs (bank statement or credit card / debit card transaction history). Free trial: 1 upload. Plans: $5/month (3 uploads) or $10/month (10 uploads).
               </p>
               <UpgradePlans onClose={() => router.push('/dashboard')} />
             </div>
@@ -248,7 +248,7 @@ export default function UploadPage() {
                 AI is Extracting & Categorizing
               </h3>
               <p className="text-gray-500">
-                Analyzing your bank statement...
+                Analyzing your bank statement or card transaction history...
               </p>
               <p className="text-sm text-gray-400 mt-4">
                 This may take 10 seconds up to a few minutes.

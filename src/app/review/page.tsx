@@ -38,10 +38,10 @@ export default function ReviewPage() {
     })
   );
 
-  // 인증 체크
+  // 인증 체크 (비로그인 시 랜딩 페이지로)
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push('/login');
+      router.push('/');
     }
   }, [user, authLoading, router]);
 
@@ -178,7 +178,7 @@ export default function ReviewPage() {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/dashboard" className="text-2xl font-bold text-blue-600">
-              Budget Tracker
+              Money Budget
             </Link>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-500">
