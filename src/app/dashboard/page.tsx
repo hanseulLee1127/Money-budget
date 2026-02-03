@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useAuthContext } from '@/components/AuthProvider';
@@ -18,6 +18,7 @@ import InsightsTab from '@/components/InsightsTab';
 
 export default function DashboardPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, loading: authLoading, signOut } = useAuthContext();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categoryTotals, setCategoryTotals] = useState<{ category: string; total: number }[]>([]);
@@ -59,6 +60,18 @@ export default function DashboardPage() {
       router.push('/login');
     }
   }, [user, authLoading, router]);
+
+  // Stripe 구독 성공/취소 후 리다이렉트 시 토스트
+  useEffect(() => {
+    const sub = searchParams.get('subscription');
+    if (sub === 'success') {
+      toast.success('Subscription activated. You can upload more PDFs now.');
+      router.replace('/dashboard', { scroll: false });
+    } else if (sub === 'cancelled') {
+      toast('Checkout cancelled.');
+      router.replace('/dashboard', { scroll: false });
+    }
+  }, [searchParams, router]);
 
   // 데이터 로드
   const loadData = useCallback(async () => {

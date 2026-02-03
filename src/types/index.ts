@@ -71,3 +71,16 @@ export interface Insight {
   period: string;
   createdAt: Date;
 }
+
+// 구독 플랜: trial(1회 무료) | basic($5/3회) | pro($10/10회)
+export type SubscriptionPlan = 'trial' | 'basic' | 'pro' | null;
+
+export interface SubscriptionState {
+  plan: SubscriptionPlan;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  currentPeriodEnd?: Date;
+  periodStart?: Date;
+  uploadsUsedThisMonth: number;
+  trialUsed: boolean;
+}

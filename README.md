@@ -85,6 +85,10 @@ service cloud.firestore {
     match /users/{userId}/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
+    // 구독 정보는 서버(Admin SDK)만 사용. 클라이언트는 읽기/쓰기 불가
+    match /subscriptions/{userId} {
+      allow read, write: if false;
+    }
   }
 }
 ```
@@ -126,6 +130,44 @@ git push -u origin main
 
 1. Firebase Console > Authentication > Settings
 2. "Authorized domains"에 Vercel 배포 URL 추가 (예: `your-app.vercel.app`)
+
+---
+
+## Stripe 구독 – 웹훅 및 Firestore 설정
+
+### 웹훅 (Webhook)
+
+구독 결제 완료/갱신/취소 시 Stripe이 서버에 알려주려면 웹훅이 필요합니다.
+
+**로컬 개발**
+
+1. Stripe CLI 설치 (macOS): `brew install stripe/stripe-cli/stripe`
+2. 로그인: `stripe login`
+3. 포워딩 실행 (앱이 `localhost:3000`에서 돌아갈 때):
+   ```bash
+   stripe listen --forward-to localhost:3000/api/stripe/webhook
+   ```
+4. 터미널에 나오는 **Signing secret** (`whsec_...`)을 복사해 `.env.local`의 `STRIPE_WEBHOOK_SECRET`에 넣습니다.
+
+**Vercel 배포**
+
+1. [Stripe Dashboard](https://dashboard.stripe.com/webhooks) → **Developers** → **Webhooks** → **Add endpoint**
+2. **Endpoint URL**: `https://your-app.vercel.app/api/stripe/webhook` (실제 배포 URL로 변경)
+3. **Listen to**: "Events on your account" 또는 "Select events"에서 다음 이벤트 선택:
+   - `checkout.session.completed`
+   - `customer.subscription.updated`
+   - `customer.subscription.deleted`
+4. **Add endpoint** 후 해당 엔드포인트 클릭 → **Signing secret**의 "Reveal" → `whsec_...` 복사
+5. Vercel 프로젝트 → **Settings** → **Environment Variables**에 `STRIPE_WEBHOOK_SECRET` = `whsec_...` 추가 후 재배포
+
+### Firestore – 구독 컬렉션 보안
+
+`subscriptions` 컬렉션은 서버(Admin SDK)만 사용하고, 클라이언트에서는 읽기/쓰기를 막는 것이 안전합니다.
+
+- **규칙**: 위 "5. Firebase Security Rules"에 있는 규칙에 `subscriptions`용 `match` 블록이 포함되어 있어야 합니다. (이미 포함됨)
+- Firebase Console > Firestore Database > **Rules**에서 해당 규칙이 적용되어 있는지 확인하고 **Publish** 합니다.
+
+Admin SDK(서버)는 Rules를 거치지 않으므로, API 라우트에서는 그대로 `subscriptions`를 읽고 쓸 수 있습니다. 위 규칙은 브라우저에서 Firestore 클라이언트 SDK로 `subscriptions`에 접근하는 것만 차단합니다.
 
 ## 폴더 구조
 

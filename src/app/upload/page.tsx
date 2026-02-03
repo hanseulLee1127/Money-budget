@@ -6,13 +6,24 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useAuthContext } from '@/components/AuthProvider';
 import PdfUpload from '@/components/PdfUpload';
+import UpgradePlans from '@/components/UpgradePlans';
 import { ParsedTransaction, CategorizedTransaction } from '@/types';
+import { getAuth } from 'firebase/auth';
+
+type SubscriptionStatus = {
+  canUpload: boolean;
+  remaining: number;
+  limit: number;
+  plan: string | null;
+};
 
 export default function UploadPage() {
   const router = useRouter();
   const { user, loading: authLoading, signOut } = useAuthContext();
   const [step, setStep] = useState<'upload' | 'processing' | 'categorizing'>('upload');
   const [parsedTransactions, setParsedTransactions] = useState<ParsedTransaction[]>([]);
+  const [subscription, setSubscription] = useState<SubscriptionStatus | null>(null);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
 
   // 인증 체크
   useEffect(() => {
@@ -20,6 +31,29 @@ export default function UploadPage() {
       router.push('/login');
     }
   }, [user, authLoading, router]);
+
+  // 구독 상태 조회
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const token = await getAuth().currentUser?.getIdToken();
+        if (!token || cancelled) return;
+        const res = await fetch('/api/subscription/status', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok || cancelled) return;
+        const json = await res.json();
+        if (json.success && json.data) setSubscription(json.data);
+      } catch {
+        setSubscription({ canUpload: true, remaining: 1, limit: 1, plan: null });
+      } finally {
+        if (!cancelled) setSubscriptionLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
 
   const handleUploadComplete = async (text: string) => {
     toast.success('PDF extracted successfully!');
@@ -53,12 +87,20 @@ export default function UploadPage() {
         return;
       }
       
+      // 업로드 1회 사용 처리
+      const token = await getAuth().currentUser?.getIdToken();
+      if (token) {
+        await fetch('/api/subscription/record-upload', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+
       setParsedTransactions(categorizedTransactions);
       sessionStorage.setItem('categorizedTransactions', JSON.stringify(categorizedTransactions));
       
       toast.success(`Found and categorized ${categorizedTransactions.length} transactions!`);
       
-      // 리뷰 페이지로 이동
       router.push('/review');
       
     } catch {
@@ -76,7 +118,7 @@ export default function UploadPage() {
     router.push('/');
   };
 
-  if (authLoading || !user) {
+  if (authLoading || !user || subscriptionLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
@@ -166,12 +208,27 @@ export default function UploadPage() {
             </div>
           </div>
 
+          {/* 업로드 불가 시 구독 유도 */}
+          {step === 'upload' && subscription && !subscription.canUpload && (
+            <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">PDF upload limit reached</h3>
+              <p className="text-gray-600 mb-6">
+                Subscribe to upload more bank statements. Free trial: 1 upload. Plans: $5/month (3 uploads) or $10/month (10 uploads).
+              </p>
+              <UpgradePlans onClose={() => router.push('/dashboard')} />
+            </div>
+          )}
+
           {/* 업로드 영역 */}
-          {step === 'upload' && (
+          {step === 'upload' && subscription?.canUpload && (
             <div>
+              {subscription.remaining < subscription.limit && (
+                <p className="text-sm text-gray-600 mb-4 text-center">
+                  Uploads left this period: {subscription.remaining} of {subscription.limit}
+                </p>
+              )}
               <PdfUpload onUploadComplete={handleUploadComplete} onError={handleError} />
               
-              {/* 취소 버튼 */}
               <div className="mt-6 text-center">
                 <button
                   onClick={() => router.push('/dashboard')}
