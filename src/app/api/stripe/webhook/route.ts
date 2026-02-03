@@ -44,14 +44,12 @@ export async function POST(request: NextRequest) {
           console.error('[Stripe webhook] Unknown price id:', priceId, 'expected BASIC:', process.env.STRIPE_PRICE_BASIC, 'PRO:', process.env.STRIPE_PRICE_PRO);
           break;
         }
-        const periodEndRaw = (subscription as unknown as { current_period_end?: number }).current_period_end;
-        const periodEnd = typeof periodEndRaw === 'number' ? periodEndRaw : 0;
         console.log('[Stripe webhook] Setting subscription', { uid, plan, priceId });
         await setSubscriptionFromStripe(uid, {
           plan,
           stripeCustomerId: subscription.customer as string,
           stripeSubscriptionId: subscription.id,
-          currentPeriodEnd: new Date(periodEnd * 1000),
+          currentPeriodEnd: new Date((subscription.current_period_end ?? 0) * 1000),
         });
         console.log('[Stripe webhook] Subscription saved for uid:', uid);
         break;
@@ -65,13 +63,11 @@ export async function POST(request: NextRequest) {
           const priceId = sub.items.data[0]?.price.id;
           const plan = priceId === process.env.STRIPE_PRICE_PRO ? 'pro' : priceId === process.env.STRIPE_PRICE_BASIC ? 'basic' : null;
           if (plan) {
-            const periodEndRaw = (sub as unknown as { current_period_end?: number }).current_period_end;
-            const periodEnd = typeof periodEndRaw === 'number' ? periodEndRaw : 0;
             await setSubscriptionFromStripe(uid, {
               plan,
               stripeCustomerId: sub.customer as string,
               stripeSubscriptionId: sub.id,
-              currentPeriodEnd: new Date(periodEnd * 1000),
+              currentPeriodEnd: new Date((sub.current_period_end ?? 0) * 1000),
             });
           }
         } else if (sub.status === 'canceled' || sub.status === 'unpaid' || sub.status === 'past_due') {
