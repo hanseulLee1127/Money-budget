@@ -32,22 +32,39 @@ export default function UploadPage() {
     }
   }, [user, authLoading, router]);
 
-  // 구독 상태 조회
+  // 구독 상태 조회 (실패/타임아웃 시 trial로 간주해 업로드 영역 표시)
+  const defaultTrial = { canUpload: true, remaining: 1, limit: 1, plan: null as string | null };
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
+    const timeoutMs = 10000;
     (async () => {
       try {
         const token = await getAuth().currentUser?.getIdToken();
-        if (!token || cancelled) return;
+        if (!token || cancelled) {
+          if (!cancelled) setSubscription(defaultTrial);
+          return;
+        }
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
         const res = await fetch('/api/subscription/status', {
           headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal,
         });
-        if (!res.ok || cancelled) return;
+        clearTimeout(timeoutId);
+        if (cancelled) return;
+        if (!res.ok) {
+          setSubscription(defaultTrial);
+          return;
+        }
         const json = await res.json();
-        if (json.success && json.data) setSubscription(json.data);
+        if (json.success && json.data) {
+          setSubscription(json.data);
+        } else {
+          setSubscription(defaultTrial);
+        }
       } catch {
-        setSubscription({ canUpload: true, remaining: 1, limit: 1, plan: null });
+        setSubscription(defaultTrial);
       } finally {
         if (!cancelled) setSubscriptionLoading(false);
       }
@@ -219,10 +236,10 @@ export default function UploadPage() {
             </div>
           )}
 
-          {/* 업로드 영역 */}
-          {step === 'upload' && subscription?.canUpload && (
+          {/* 업로드 영역 (구독 API 실패/미응답 시에도 trial로 업로드 표시) */}
+          {step === 'upload' && (subscription === null || subscription.canUpload) && (
             <div>
-              {subscription.remaining < subscription.limit && (
+              {subscription && subscription.remaining < subscription.limit && (
                 <p className="text-sm text-gray-600 mb-4 text-center">
                   Uploads left this period: {subscription.remaining} of {subscription.limit}
                 </p>
