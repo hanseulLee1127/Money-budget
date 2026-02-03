@@ -41,7 +41,7 @@ export default function SpendingPieChart({ data }: SpendingPieChartProps) {
           outerRadius={100}
           paddingAngle={2}
           dataKey="value"
-          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+          label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
           labelLine={false}
         >
           {chartData.map((entry, index) => (
@@ -49,8 +49,8 @@ export default function SpendingPieChart({ data }: SpendingPieChartProps) {
           ))}
         </Pie>
         <Tooltip
-          formatter={(value: number) => 
-            `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+          formatter={(value: number | undefined) => 
+            value != null ? `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : ''
           }
         />
         <Legend />

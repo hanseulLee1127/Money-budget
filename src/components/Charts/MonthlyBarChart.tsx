@@ -58,14 +58,17 @@ export default function MonthlyBarChart({ transactions, selectedMonth, onMonthCl
     <ResponsiveContainer width="100%" height={300}>
       <BarChart 
         data={monthlyData} 
-        onClick={onMonthClick ? (e) => e?.activePayload?.[0]?.payload && handleBarClick(e.activePayload[0].payload) : undefined}
+        onClick={onMonthClick ? (e) => {
+          const payload = (e as { activePayload?: { payload: { monthKey: string } }[] })?.activePayload?.[0]?.payload;
+          if (payload) handleBarClick(payload);
+        } : undefined}
       >
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
         <XAxis dataKey="month" stroke="#6b7280" fontSize={11} />
         <YAxis stroke="#6b7280" fontSize={12} tickFormatter={(value) => `$${value}`} />
         <Tooltip
-          formatter={(value: number) => [
-            `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+          formatter={(value: number | undefined) => [
+            value != null ? `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '',
             'Spending',
           ]}
           contentStyle={{
