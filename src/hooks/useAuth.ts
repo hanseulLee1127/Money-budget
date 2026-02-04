@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   User,
   onAuthStateChanged,
@@ -10,6 +10,8 @@ import {
   sendPasswordResetEmail,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+
+const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
 
 interface AuthState {
   user: User | null;
@@ -108,6 +110,32 @@ export function useAuth(): UseAuthReturn {
     // #endregion
     setState((prev) => ({ ...prev, error: null }));
   }, []);
+
+  // 클라이언트 Idle 타임아웃: 로그인 상태에서 15분 동안 입력/클릭 없으면 signOut
+  const signOutRef = useRef(signOut);
+  signOutRef.current = signOut;
+
+  useEffect(() => {
+    if (!state.user) return;
+
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const resetTimer = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        signOutRef.current?.();
+      }, IDLE_TIMEOUT_MS);
+    };
+
+    const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
+    events.forEach((ev) => window.addEventListener(ev, resetTimer));
+    resetTimer();
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      events.forEach((ev) => window.removeEventListener(ev, resetTimer));
+    };
+  }, [state.user]);
 
   return {
     ...state,
