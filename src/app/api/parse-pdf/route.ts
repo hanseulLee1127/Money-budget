@@ -1,24 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { extractText } from 'unpdf';
 
-// 개인정보 제거를 위한 정규식 패턴 (간소화)
+// PII patterns: removed before any text is sent to AI (parse-pdf → categorize).
+// AI never receives account numbers, routing numbers, SSN, card numbers, phone, or email.
 const PII_PATTERNS = {
-  // 완전한 신용카드 번호만 제거 (부분 마스킹된 것은 유지)
+  // Full credit card number (16 digits, optional spaces/dashes)
   creditCard: /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/g,
-  // 완전한 계좌번호만 제거
+  // Account number: "account"/"acct" followed by 8–17 digits
   fullAccountNumber: /\b(?:account|acct)[\s#:]*\d{8,17}\b/gi,
-  // SSN
+  // Account "ending in" / "last 4" digits
+  accountEndingIn: /\b(?:account|acct)[\s#:]*(?:ending in|last four|last 4)[\s#:]*\d{4}\b/gi,
+  // US routing number (9 digits), only when labeled (routing/ABA/RTN)
+  routingNumber: /\b(?:routing|aba|rtn)[\s#:]*\d{9}\b/gi,
+  // SSN format XXX-XX-XXXX
   ssn: /\b\d{3}[-\s]\d{2}[-\s]\d{4}\b/g,
+  // US phone: (xxx) xxx-xxxx, xxx-xxx-xxxx (requires separator to avoid redacting ref numbers)
+  phone: /\b\(\d{3}\)\s*\d{3}[-.\s]\d{4}\b|\b\d{3}[-.\s]\d{3}[-.\s]\d{4}\b/g,
+  // Email
+  email: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g,
 };
 
-// 개인정보 제거 함수 (덜 공격적)
 function removeSensitivePII(text: string): string {
   let cleanedText = text;
-  
+
   cleanedText = cleanedText.replace(PII_PATTERNS.ssn, '[SSN-REDACTED]');
   cleanedText = cleanedText.replace(PII_PATTERNS.creditCard, '[CARD-REDACTED]');
   cleanedText = cleanedText.replace(PII_PATTERNS.fullAccountNumber, '[ACCOUNT-REDACTED]');
-  
+  cleanedText = cleanedText.replace(PII_PATTERNS.accountEndingIn, '[ACCOUNT-REDACTED]');
+  cleanedText = cleanedText.replace(PII_PATTERNS.routingNumber, '[ROUTING-REDACTED]');
+  cleanedText = cleanedText.replace(PII_PATTERNS.phone, '[PHONE-REDACTED]');
+  cleanedText = cleanedText.replace(PII_PATTERNS.email, '[EMAIL-REDACTED]');
+
   return cleanedText;
 }
 
