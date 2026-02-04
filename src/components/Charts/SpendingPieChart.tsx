@@ -24,14 +24,14 @@ export default function SpendingPieChart({ data }: SpendingPieChartProps) {
 
   if (chartData.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-400">
+      <div className="flex items-center justify-center h-56 text-gray-400">
         No data available
       </div>
     );
   }
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
+    <ResponsiveContainer width="100%" height={290}>
       <PieChart>
         <Pie
           data={chartData}

@@ -130,21 +130,21 @@ export default function UploadPage() {
     <div className="min-h-screen bg-gray-50">
       {/* 네비게이션 */}
       <nav className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/dashboard" className="text-2xl font-bold text-blue-600">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-3">
+            <Link href="/dashboard" className="text-lg sm:text-2xl font-bold text-blue-600 truncate min-w-0">
               Money Budget
             </Link>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
               <Link
                 href="/dashboard"
-                className="text-gray-600 hover:text-gray-800 transition"
+                className="px-3 py-2 text-sm sm:text-base text-gray-600 hover:text-gray-800 transition"
               >
                 Dashboard
               </Link>
               <button
                 onClick={handleSignOut}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition"
+                className="px-3 py-2 sm:px-4 text-sm sm:text-base text-gray-600 hover:text-gray-800 transition whitespace-nowrap"
               >
                 Sign Out
               </button>
@@ -154,20 +154,20 @@ export default function UploadPage() {
       </nav>
 
       {/* 메인 콘텐츠 */}
-      <main className="container mx-auto px-6 py-12">
+      <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <div className="max-w-2xl mx-auto">
           {/* 헤더 */}
-          <div className="text-center mb-10">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-8 sm:mb-10">
+            <h1 className="text-xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4 px-1">
               Upload Bank Statement or Card History
             </h1>
-            <p className="text-gray-600">
+            <p className="text-sm sm:text-base text-gray-600 px-1">
               Upload your bank statement or credit card / debit card transaction history PDF and we&apos;ll automatically extract and categorize your transactions.
             </p>
           </div>
 
           {/* 진행 단계 표시 */}
-          <div className="flex items-center justify-center mb-10">
+          <div className="flex items-center justify-center mb-8 sm:mb-10 overflow-x-auto">
             <div className="flex items-center">
               {/* 단계 1: 업로드 */}
               <div className="flex items-center">

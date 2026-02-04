@@ -175,31 +175,31 @@ export default function ReviewPage() {
     <div className="min-h-screen bg-gray-50">
       {/* 네비게이션 */}
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/dashboard" className="text-2xl font-bold text-blue-600">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <Link href="/dashboard" className="text-lg sm:text-2xl font-bold text-blue-600 truncate min-w-0">
               Money Budget
             </Link>
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 flex-shrink-0">
               <span className="text-sm text-gray-500">
                 {transactions.length} transactions
               </span>
               <Link
                 href="/dashboard"
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                className="px-3 py-2 text-sm sm:text-base text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition whitespace-nowrap"
               >
                 Cancel
               </Link>
               <button
                 onClick={handleConfirmAll}
                 disabled={isSaving || transactions.length === 0}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 sm:px-6 text-sm sm:text-base bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
                 {isSaving ? 'Saving...' : 'Confirm All'}
               </button>
               <button
                 onClick={handleSignOut}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition"
+                className="px-3 py-2 sm:px-4 text-sm sm:text-base text-gray-600 hover:text-gray-800 transition whitespace-nowrap"
               >
                 Sign Out
               </button>
@@ -209,9 +209,9 @@ export default function ReviewPage() {
       </nav>
 
       {/* 메인 콘텐츠 */}
-      <main className="container mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Review Transactions</h1>
+      <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-3xl font-bold text-gray-900 mb-2">Review Transactions</h1>
           <p className="text-gray-600">
             Drag transactions between categories to reclassify them, or click to edit details.
           </p>
@@ -223,7 +223,7 @@ export default function ReviewPage() {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {DEFAULT_CATEGORIES.map(category => (
               <CategoryDropZone
                 key={category.id}

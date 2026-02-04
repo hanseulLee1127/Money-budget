@@ -139,10 +139,10 @@ export default function PdfUpload({ onUploadComplete, onError }: PdfUploadProps)
           </div>
 
           {/* 텍스트 */}
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-2">
             Upload Bank Statement or Card History
           </h3>
-          <p className="text-gray-500 mb-4">
+          <p className="text-sm sm:text-base text-gray-500 mb-4 px-2">
             Drag and drop your bank statement or credit card / debit card transaction history PDF here, or click to browse
           </p>
 

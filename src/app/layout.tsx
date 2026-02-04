@@ -14,6 +14,12 @@ export const metadata: Metadata = {
   description: "Upload credit card or bank statement PDFs. AI categorizes your spending—no daily logging, no personal info at risk.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,6 +34,7 @@ export default function RootLayout({
           {children}
           <Toaster 
             position="top-right"
+            containerStyle={{ top: 80, right: 16 }}
             toastOptions={{
               duration: 4000,
               style: {

@@ -26,6 +26,7 @@ function DashboardContent() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [deletingRecurringTransaction, setDeletingRecurringTransaction] = useState<Transaction | null>(null);
+  const [pendingDeleteTransaction, setPendingDeleteTransaction] = useState<Transaction | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'transactions' | 'calendar' | 'insights'>('overview');
   
   // 월별 필터 상태 (초기값은 빈 문자열, useEffect에서 설정)
@@ -166,30 +167,25 @@ function DashboardContent() {
     }
   };
 
-  const handleDeleteTransaction = async (transactionId: string) => {
-    if (!user) return;
-
-    // 거래 찾기
-    const transaction = transactions.find((t) => t.id === transactionId);
-    if (!transaction) return;
-
-    // Recurring 거래인 경우 모달 표시
+  const handleDeleteTransaction = (transaction: Transaction) => {
     if (transaction.isRecurring) {
       setDeletingRecurringTransaction(transaction);
-    } else {
-      // 일반 거래
-      if (!confirm('Are you sure you want to delete this transaction?')) {
-        return;
-      }
+      return;
+    }
+    setPendingDeleteTransaction(transaction);
+  };
 
-      try {
-        await deleteTransaction(user.uid, transactionId);
-        toast.success('Transaction deleted');
-        loadData();
-      } catch (error) {
-        console.error('Error deleting transaction:', error);
-        toast.error('Failed to delete transaction');
-      }
+  const confirmDeleteTransaction = async () => {
+    if (!user || !pendingDeleteTransaction) return;
+    try {
+      await deleteTransaction(user.uid, pendingDeleteTransaction.id);
+      toast.success('Transaction deleted');
+      loadData();
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+      toast.error('Failed to delete transaction');
+    } finally {
+      setPendingDeleteTransaction(null);
     }
   };
 
@@ -237,6 +233,17 @@ function DashboardContent() {
     const nextMonth = nextMonths[nextMonths.length - 1]; // 내림차순이므로 마지막이 selectedMonth 바로 다음 달(데이터 있음)
     if (nextMonth) setSelectedMonth(nextMonth);
   };
+
+  const handleResetDashboard = useCallback(() => {
+    setActiveTab('overview');
+    setSelectedCategory(null);
+    setCardFilter(null);
+    setSelectedMonth(format(new Date(), 'yyyy-MM'));
+    setSelectedDate(null);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
 
   const handleSignOut = async () => {
     await signOut();
@@ -465,28 +472,24 @@ function DashboardContent() {
     <div className="min-h-screen bg-gray-50">
       {/* 네비게이션 */}
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-3">
             <button 
-              onClick={() => {
-                setActiveTab('overview');
-                setSelectedCategory(null);
-                setCardFilter(null);
-              }}
-              className="text-2xl font-bold text-blue-600 hover:text-blue-700 transition"
+              onClick={handleResetDashboard}
+              className="text-lg sm:text-2xl font-bold text-blue-600 hover:text-blue-700 transition truncate min-w-0 text-left"
             >
               Money Budget
             </button>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
               <Link
                 href="/upload"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                className="px-3 py-2 sm:px-4 text-sm sm:text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition whitespace-nowrap"
               >
                 Upload PDF
               </Link>
               <button
                 onClick={handleSignOut}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition"
+                className="px-3 py-2 sm:px-4 text-sm sm:text-base text-gray-600 hover:text-gray-800 transition whitespace-nowrap"
               >
                 Sign Out
               </button>
@@ -495,22 +498,17 @@ function DashboardContent() {
         </div>
       </nav>
 
-      {/* 메인 콘텐츠 */}
-      <main className="container mx-auto px-6 py-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+      {/* 메인 콘텐츠 - 전체적으로 확 */}
+      <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-6xl">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 sm:mb-8 gap-4">
           <button
-            onClick={() => {
-              setActiveTab('overview');
-              setSelectedCategory(null);
-              setCardFilter(null);
-              setSelectedMonth(format(new Date(), 'yyyy-MM')); // 현재 달로 돌아가기
-            }}
-            className="text-3xl font-bold text-gray-900 hover:text-blue-600 transition text-left"
+            onClick={handleResetDashboard}
+            className="text-2xl sm:text-3xl font-bold text-gray-900 hover:text-blue-600 transition text-left"
           >
             Dashboard
           </button>
           
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
             {/* 월 선택기 */}
             <select
               value={selectedMonth}
@@ -528,7 +526,8 @@ function DashboardContent() {
             </select>
             
             {/* 탭 */}
-            <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg">
+            <div className="flex overflow-x-auto pb-1 sm:pb-0 -mx-1 sm:mx-0">
+              <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg min-w-0">
               <button
                 onClick={() => {
                   setActiveTab('overview');
@@ -583,6 +582,7 @@ function DashboardContent() {
                   💡 Insights
                 </button>
               )}
+              </div>
             </div>
           </div>
         </div>
@@ -591,19 +591,19 @@ function DashboardContent() {
         {activeTab !== 'calendar' && activeTab !== 'insights' && (
           <>
             {/* 요약 카드 - 클릭 가능 */}
-            <div className="grid md:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
               <button
                 onClick={() => {
                   setCardFilter('spending');
                   setSelectedCategory(null);
                   setActiveTab('transactions');
                 }}
-                className={`bg-white p-6 rounded-xl shadow-sm border text-left transition hover:shadow-md ${
+                className={`bg-white p-4 sm:p-6 rounded-xl shadow-sm border text-left transition hover:shadow-md ${
                   cardFilter === 'spending' ? 'border-red-400 ring-2 ring-red-200' : 'border-gray-100'
                 }`}
               >
                 <h3 className="text-sm font-medium text-gray-500 mb-2">Monthly Spending</h3>
-                <p className="text-3xl font-bold text-red-600">
+                <p className="text-xl sm:text-3xl font-bold text-red-600">
                   ${monthlySpending.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </p>
                 <p className="text-xs text-gray-400 mt-2">Click to view details</p>
@@ -615,28 +615,28 @@ function DashboardContent() {
                   setSelectedCategory(null);
                   setActiveTab('transactions');
                 }}
-                className={`bg-white p-6 rounded-xl shadow-sm border text-left transition hover:shadow-md ${
+                className={`bg-white p-4 sm:p-6 rounded-xl shadow-sm border text-left transition hover:shadow-md ${
                   cardFilter === 'income' ? 'border-green-400 ring-2 ring-green-200' : 'border-gray-100'
                 }`}
               >
                 <h3 className="text-sm font-medium text-gray-500 mb-2">Monthly Income</h3>
-                <p className="text-3xl font-bold text-green-600">
+                <p className="text-xl sm:text-3xl font-bold text-green-600">
                   ${monthlyIncome.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </p>
                 <p className="text-xs text-gray-400 mt-2">Click to view details</p>
               </button>
 
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+              <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
                 <h3 className="text-sm font-medium text-gray-500 mb-2">Net Balance</h3>
-                <p className={`text-3xl font-bold ${monthlyIncome - monthlySpending >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <p className={`text-xl sm:text-3xl font-bold ${monthlyIncome - monthlySpending >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {monthlyIncome - monthlySpending >= 0 ? '+' : '-'}$
                   {Math.abs(monthlyIncome - monthlySpending).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </p>
               </div>
 
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+              <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
                 <h3 className="text-sm font-medium text-gray-500 mb-2">Transactions</h3>
-                <p className="text-3xl font-bold text-gray-900">
+                <p className="text-xl sm:text-3xl font-bold text-gray-900">
                   {monthlyTransactions.length}
                 </p>
               </div>
@@ -644,12 +644,12 @@ function DashboardContent() {
 
             {/* 연간 총계 (Overview) 또는 필터 총계 (Transactions) */}
             {activeTab === 'overview' ? (
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl mb-8 border border-blue-100">
-                <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl mb-6 sm:mb-8 border border-blue-100">
+                <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-4">
                   <h3 className="text-sm font-medium text-gray-600">
                     {currentYear} Year Total
                   </h3>
-                  <div className="flex gap-8">
+                  <div className="flex flex-wrap gap-4 sm:gap-8">
                     <div>
                       <span className="text-xs text-gray-500">Total Income</span>
                       <p className="text-lg font-bold text-green-600">
@@ -689,7 +689,7 @@ function DashboardContent() {
                       {formatMonth(selectedMonth)}
                     </h3>
                   </div>
-                  <div className="flex gap-8">
+                  <div className="flex flex-wrap gap-4 sm:gap-8">
                     <div>
                       <span className="text-xs text-gray-500">Total Amount</span>
                       <p className="text-lg font-bold text-gray-900">
@@ -710,10 +710,10 @@ function DashboardContent() {
         )}
 
         {activeTab === 'overview' && (
-          <div className="grid lg:grid-cols-2 gap-8">
+          <div className="grid lg:grid-cols-2 gap-7">
             {/* 카테고리별 파이 차트 */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 [&_*]:outline-none">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 [&_*]:outline-none min-w-0">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-5">
                 Spending by Category ({formatMonth(selectedMonth)})
               </h2>
               {loading ? (
@@ -726,8 +726,8 @@ function DashboardContent() {
             </div>
 
             {/* 월별 지출 바 차트 */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 [&_*]:outline-none">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Monthly Spending Trend</h2>
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 [&_*]:outline-none min-w-0">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-5">Monthly Spending Trend</h2>
               {loading ? (
                 <div className="flex justify-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
@@ -741,9 +741,9 @@ function DashboardContent() {
             </div>
 
             {/* 카테고리별 상세 - 클릭 가능 */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2 min-w-0">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900">
                   Category Breakdown ({formatMonth(selectedMonth)})
                 </h2>
                 {selectedCategory && (
@@ -820,8 +820,8 @@ function DashboardContent() {
           /* 거래 내역 탭 */
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             {/* 헤더 - 월별 삭제 버튼 */}
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">
+            <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
                 Transactions for {formatMonth(selectedMonth)}
               </h2>
               {filteredTransactions.length > 0 && (
@@ -848,7 +848,7 @@ function DashboardContent() {
               if (categoryList.length === 0) return null;
               
               return (
-                <div className="px-6 py-3 border-b border-gray-100 overflow-x-auto">
+                <div className="px-4 sm:px-6 py-3 border-b border-gray-100 overflow-x-auto -mx-1">
                   <div className="flex items-center gap-2 flex-nowrap">
                     <button
                       onClick={() => setSelectedCategory(null)}
@@ -891,25 +891,16 @@ function DashboardContent() {
               );
             })()}
             
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            {/* 데스크톱: 테이블 / 모바일: 카드 */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full table-fixed">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Description
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Category
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Amount
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
+                    <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Date</th>
+                    <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-0">Description</th>
+                    <th className="px-3 py-2.5 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-36">Category</th>
+                    <th className="px-3 py-2.5 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-26">Amount</th>
+                    <th className="px-3 py-2.5 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-30">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -945,13 +936,13 @@ function DashboardContent() {
                       
                       return (
                         <tr key={transaction.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 w-28">
                             {transaction.date}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">
-                            {transaction.description}
+                          <td className="px-4 py-3 text-sm text-gray-900 min-w-0 overflow-hidden">
+                            <span className="block truncate max-w-full" title={transaction.description}>{transaction.description}</span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-3 py-3 w-36 overflow-hidden text-center">
                             <button
                               onClick={() => {
                                 setSelectedCategory(transaction.category);
@@ -963,7 +954,7 @@ function DashboardContent() {
                               {category?.icon} {transaction.category}
                             </button>
                           </td>
-                          <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium text-right ${
+                          <td className={`px-3 py-3 whitespace-nowrap text-sm font-medium text-right w-26 ${
                             transaction.amount < 0 ? 'text-red-600' : 'text-green-600'
                           }`}>
                             {transaction.amount < 0 ? '-' : '+'}$
@@ -971,19 +962,25 @@ function DashboardContent() {
                               minimumFractionDigits: 2,
                             })}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                            <button
-                              onClick={() => setEditingTransaction(transaction)}
-                              className="text-blue-600 hover:text-blue-800 mr-3"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteTransaction(transaction.id)}
-                              className="text-red-600 hover:text-red-800"
-                            >
-                              Delete
-                            </button>
+                          <td className="px-3 py-3 whitespace-nowrap text-right text-sm w-30">
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => setEditingTransaction(transaction)}
+                                className="w-8 h-8 rounded-full bg-blue-50 text-lg hover:bg-blue-100 transition"
+                                title="Edit transaction"
+                                aria-label="Edit transaction"
+                              >
+                                ✏️
+                              </button>
+                              <button
+                                onClick={() => handleDeleteTransaction(transaction)}
+                                className="w-8 h-8 rounded-full bg-red-50 text-lg hover:bg-red-100 transition"
+                                title="Delete transaction"
+                                aria-label="Delete transaction"
+                              >
+                                🗑️
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -992,10 +989,69 @@ function DashboardContent() {
                 </tbody>
               </table>
             </div>
+
+            {/* 모바일: 카드 레이아웃 */}
+            <div className="md:hidden divide-y divide-gray-200">
+              {loading ? (
+                <div className="py-12 flex justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
+                </div>
+              ) : filteredTransactions.length === 0 ? (
+                <div className="py-12 text-center text-gray-500 px-4">
+                  {monthlyTransactions.length === 0 ? (
+                    <>
+                      No transactions for {formatMonth(selectedMonth)}.{' '}
+                      <button onClick={() => setShowAddModal(true)} className="text-blue-600 hover:text-blue-700 font-medium">
+                        Add a transaction
+                      </button>
+                    </>
+                  ) : (
+                    'No matching transactions.'
+                  )}
+                </div>
+              ) : (
+                filteredTransactions.map((transaction) => {
+                  const category = getCategoryById(transaction.category.toLowerCase());
+                  return (
+                    <div key={transaction.id} className="p-4 bg-white hover:bg-gray-50">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-gray-900 text-sm truncate">{transaction.description}</p>
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            <span className="text-xs text-gray-500">{transaction.date}</span>
+                            <button
+                              onClick={() => { setSelectedCategory(transaction.category); setCardFilter(null); }}
+                              className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                              style={{ backgroundColor: `${category?.color}20`, color: category?.color }}
+                            >
+                              {category?.icon} {transaction.category}
+                            </button>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                          <span className={`text-base font-bold ${transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                            {transaction.amount < 0 ? '-' : '+'}$
+                            {Math.abs(transaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                          </span>
+                          <div className="flex gap-2">
+                            <button onClick={() => setEditingTransaction(transaction)} className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                              Edit
+                            </button>
+                            <button onClick={() => handleDeleteTransaction(transaction)} className="text-red-600 hover:text-red-800 text-sm font-medium">
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
             
             {/* 거래 수 표시 */}
             {filteredTransactions.length > 0 && (
-              <div className="px-6 py-3 bg-gray-50 border-t border-gray-200 text-sm text-gray-500">
+              <div className="px-4 sm:px-6 py-3 bg-gray-50 border-t border-gray-200 text-sm text-gray-500">
                 Showing {filteredTransactions.length} of {monthlyTransactions.length} transactions
               </div>
             )}
@@ -1009,10 +1065,10 @@ function DashboardContent() {
           return (
             /* 캘린더 탭 */
             <div className="max-w-4xl mx-auto space-y-4">
-              {/* 캘린더 + 오른쪽 여백(화살표) */}
-              <div className="flex items-stretch gap-4">
+              {/* 캘린더 + 오른쪽 여백(화살표) - 모바일에서 화살표 영역 숨김 */}
+              <div className="flex items-stretch gap-2 sm:gap-4">
                 {/* 캘린더 */}
-                <div className="flex-1 min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">
+                <div className="flex-1 min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-4 md:p-6 overflow-x-auto">
                 {/* 월 제목 with 네비게이션 및 요약 */}
                 <div className="mb-4">
                   <div className="flex items-center justify-between">
@@ -1083,10 +1139,10 @@ function DashboardContent() {
               </div>
               
               {/* 날짜 그리드 */}
-              <div className="grid grid-cols-7 gap-2">
+              <div className="grid grid-cols-7 gap-1 sm:gap-2">
                 {calendarDays.map((day, index) => {
                   if (!day) {
-                    return <div key={`empty-${index}`} className="h-20" />;
+                    return <div key={`empty-${index}`} className="h-14 sm:h-20" />;
                   }
                   
                   const dateStr = format(day, 'yyyy-MM-dd');
@@ -1100,7 +1156,7 @@ function DashboardContent() {
                     <button
                       key={dateStr}
                       onClick={() => setSelectedDate(isSelected ? null : dateStr)}
-                      className={`h-20 p-2 rounded-xl transition-all flex flex-col items-start justify-start relative ${
+                      className={`h-14 sm:h-20 p-1.5 sm:p-2 rounded-lg sm:rounded-xl transition-all flex flex-col items-start justify-start relative ${
                         isSelected 
                           ? 'bg-blue-500 text-white shadow-lg scale-105' 
                           : isToday 
@@ -1108,7 +1164,7 @@ function DashboardContent() {
                             : 'hover:bg-gray-50'
                       }`}
                     >
-                      <span className={`text-lg font-bold ${
+                      <span className={`text-sm sm:text-lg font-bold ${
                         isSelected 
                           ? 'text-white' 
                           : isToday 
@@ -1161,8 +1217,8 @@ function DashboardContent() {
               </div>
                 </div>
 
-                {/* 오른쪽 여백 중간: 아이템 있는 날 클릭 시 아래 방향 화살표 2개 점등 (3초 후 사라짐) */}
-                <div className="w-14 flex-shrink-0 flex flex-col items-center justify-center min-h-[320px]">
+                {/* 오른쪽 여백 중간: 아이템 있는 날 클릭 시 아래 방향 화살표 2개 점등 (3초 후 사라짐) - md 이상에서만 표시 */}
+                <div className="hidden md:flex w-14 flex-shrink-0 flex-col items-center justify-center min-h-[320px]">
                   {showCalendarDownArrow && (
                     <div className="flex flex-col items-center gap-2 animate-bounce" aria-hidden>
                       {[1, 2].map((i) => (
@@ -1250,10 +1306,10 @@ function DashboardContent() {
         )}
       </main>
 
-      {/* 플로팅 추가 버튼 */}
+      {/* 플로팅 추가 버튼 - 모바일에서 터치 영역 확보 */}
       <button
         onClick={() => setShowAddModal(true)}
-        className="fixed bottom-8 right-8 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition flex items-center justify-center"
+        className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 w-14 h-14 min-w-[56px] min-h-[56px] bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition flex items-center justify-center z-50"
         title="Add Transaction"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1283,6 +1339,42 @@ function DashboardContent() {
           })}
           onClose={() => setEditingTransaction(null)}
         />
+      )}
+
+      {/* 일반 거래 삭제 모달 */}
+      {pendingDeleteTransaction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-900">Delete transaction?</h3>
+            <p className="mt-2 text-sm text-gray-600">
+              This action cannot be undone.
+            </p>
+            <div className="mt-4 rounded-lg border border-gray-100 bg-gray-50 p-3 text-sm text-gray-700">
+              <div className="flex items-center justify-between gap-3">
+                <span className="truncate">{pendingDeleteTransaction.description}</span>
+                <span className={`whitespace-nowrap font-semibold ${pendingDeleteTransaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                  {pendingDeleteTransaction.amount < 0 ? '-' : '+'}$
+                  {Math.abs(pendingDeleteTransaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+              <div className="mt-1 text-xs text-gray-500">{pendingDeleteTransaction.date}</div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setPendingDeleteTransaction(null)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteTransaction}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Recurring 거래 삭제 모달 */}
