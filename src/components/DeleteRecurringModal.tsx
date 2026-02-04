@@ -12,15 +12,9 @@ export default function DeleteRecurringModal({
   onDeleteAll,
 }: DeleteRecurringModalProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* 배경 오버레이 */}
-      <div
-        className="absolute inset-0 backdrop-blur-sm bg-black/30"
-        onClick={onCancel}
-      />
-
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" onClick={onCancel}>
       {/* 모달 */}
-      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden" onClick={(e) => e.stopPropagation()}>
         {/* 헤더 */}
         <div className="bg-red-50 px-6 py-4 border-b border-red-200">
           <h2 className="text-xl font-bold text-red-900">Delete Recurring Transaction</h2>

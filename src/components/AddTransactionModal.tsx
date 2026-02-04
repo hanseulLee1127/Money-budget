@@ -62,15 +62,9 @@ export default function AddTransactionModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* 배경 오버레이 */}
-      <div
-        className="absolute inset-0 backdrop-blur-sm bg-white/10"
-        onClick={onClose}
-      />
-
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" onClick={onClose}>
       {/* 모달 */}
-      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden" onClick={(e) => e.stopPropagation()}>
         {/* 헤더 */}
         <div className="bg-blue-600 px-6 py-4">
           <h2 className="text-xl font-bold text-white">Add Transaction</h2>

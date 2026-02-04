@@ -27,6 +27,7 @@ function DashboardContent() {
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [deletingRecurringTransaction, setDeletingRecurringTransaction] = useState<Transaction | null>(null);
   const [pendingDeleteTransaction, setPendingDeleteTransaction] = useState<Transaction | null>(null);
+  const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'transactions' | 'calendar' | 'insights'>('overview');
   
   // 월별 필터 상태 (초기값은 빈 문자열, useEffect에서 설정)
@@ -250,36 +251,28 @@ function DashboardContent() {
     router.push('/');
   };
 
-  // 월별 일괄 삭제
-  const handleDeleteAllFilteredTransactions = async () => {
-    if (!user) return;
+  // Delete All 모달 열기
+  const handleDeleteAllFilteredTransactions = () => {
+    if (filteredTransactions.length === 0) return;
+    setShowDeleteAllModal(true);
+  };
 
+  // Delete All 확정 실행
+  const confirmDeleteAllFilteredTransactions = async () => {
+    if (!user) return;
     const count = filteredTransactions.length;
     if (count === 0) return;
-
-    const filterDesc = selectedCategory 
-      ? `${selectedCategory} transactions` 
-      : cardFilter === 'spending' 
-        ? 'expense transactions' 
-        : cardFilter === 'income' 
-          ? 'income transactions' 
-          : 'all transactions';
-    
-    if (!confirm(`Are you sure you want to delete ${count} ${filterDesc} for ${formatMonth(selectedMonth)}? This cannot be undone.`)) {
-      return;
-    }
 
     try {
       setLoading(true);
       let deletedCount = 0;
-      
       for (const transaction of filteredTransactions) {
         await deleteTransaction(user.uid, transaction.id);
         deletedCount++;
       }
-      
       toast.success(`Deleted ${deletedCount} transactions`);
       loadData();
+      setShowDeleteAllModal(false);
     } catch (error) {
       console.error('Error deleting transactions:', error);
       toast.error('Failed to delete transactions');
@@ -1384,6 +1377,45 @@ function DashboardContent() {
           onDeleteThis={handleDeleteRecurringThis}
           onDeleteAll={handleDeleteRecurringAll}
         />
+      )}
+
+      {/* Delete All 커스텀 모달 */}
+      {showDeleteAllModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-900">Delete all filtered transactions?</h3>
+            <p className="mt-2 text-sm text-gray-600">
+              This action cannot be undone.
+            </p>
+            <div className="mt-4 rounded-lg border border-gray-100 bg-gray-50 p-3 text-sm text-gray-700">
+              <div className="font-medium">
+                {filteredTransactions.length}{' '}
+                {selectedCategory
+                  ? `${selectedCategory} transactions`
+                  : cardFilter === 'spending'
+                    ? 'expense transactions'
+                    : cardFilter === 'income'
+                      ? 'income transactions'
+                      : 'all transactions'}{' '}
+                for {formatMonth(selectedMonth)}
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteAllModal(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteAllFilteredTransactions}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700"
+              >
+                Delete All
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
