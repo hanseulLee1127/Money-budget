@@ -159,10 +159,10 @@ export default function UploadPage() {
           {/* 헤더 */}
           <div className="text-center mb-8 sm:mb-10">
             <h1 className="text-xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4 px-1">
-              Upload Bank Statement or Card History
+              Upload Card Transaction History
             </h1>
             <p className="text-sm sm:text-base text-gray-600 px-1">
-              Upload your bank statement or credit card / debit card transaction history PDF and we&apos;ll automatically extract and categorize your transactions.
+              Upload your credit card or debit card transaction history PDF and we&apos;ll automatically extract and categorize your transactions.
             </p>
           </div>
 
@@ -213,7 +213,7 @@ export default function UploadPage() {
             <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
               <h3 className="text-xl font-semibold text-gray-900 mb-2">PDF upload limit reached</h3>
               <p className="text-gray-600 mb-6">
-                Subscribe to upload more PDFs (bank statement or credit card / debit card transaction history). Free trial: 1 upload. Plans: $2.99/month (3 uploads) or $6.99/month (10 uploads).
+                Subscribe to upload more PDFs (credit card or debit card transaction history). Free trial: 1 upload. Plans: $2.99/month (3 uploads) or $6.99/month (10 uploads).
               </p>
               <UpgradePlans onClose={() => router.push('/dashboard')} />
             </div>
@@ -248,7 +248,7 @@ export default function UploadPage() {
                 AI is Extracting & Categorizing
               </h3>
               <p className="text-gray-500">
-                Analyzing your bank statement or card transaction history...
+                Analyzing your credit card or debit card transaction history...
               </p>
               <p className="text-sm text-gray-400 mt-4">
                 This may take 10 seconds up to a few minutes.
