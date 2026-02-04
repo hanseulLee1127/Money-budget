@@ -11,7 +11,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
-const IDLE_TIMEOUT_MS = 1 * 60 * 1000; // 15 minutes
+const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
 
 interface AuthState {
   user: User | null;

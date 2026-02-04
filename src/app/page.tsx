@@ -1,21 +1,12 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthContext } from '@/components/AuthProvider';
 
 export default function HomePage() {
-  const router = useRouter();
-  const { user, loading } = useAuthContext();
+  const { loading } = useAuthContext();
   const videoRef = useRef<HTMLVideoElement>(null);
-
-  // 이미 로그인된 경우 대시보드로 리다이렉트
-  useEffect(() => {
-    if (user && !loading) {
-      router.push('/dashboard');
-    }
-  }, [user, loading, router]);
 
   // 데모 비디오 2배속
   useEffect(() => {
