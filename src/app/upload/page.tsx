@@ -213,7 +213,7 @@ export default function UploadPage() {
             <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
               <h3 className="text-xl font-semibold text-gray-900 mb-2">PDF upload limit reached</h3>
               <p className="text-gray-600 mb-6">
-                Subscribe to upload more PDFs (bank statement or credit card / debit card transaction history). Free trial: 1 upload. Plans: $5/month (3 uploads) or $10/month (10 uploads).
+                Subscribe to upload more PDFs (bank statement or credit card / debit card transaction history). Free trial: 1 upload. Plans: $2.99/month (3 uploads) or $6.99/month (10 uploads).
               </p>
               <UpgradePlans onClose={() => router.push('/dashboard')} />
             </div>

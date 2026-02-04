@@ -52,7 +52,7 @@ export default function UpgradePlans({ onClose }: UpgradePlansProps) {
     <div className="space-y-4">
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="border border-gray-200 rounded-xl p-6 bg-white">
-          <h4 className="font-semibold text-gray-900 mb-1">Basic — $5/month</h4>
+          <h4 className="font-semibold text-gray-900 mb-1">Basic — $2.99/month</h4>
           <p className="text-sm text-gray-600 mb-4">3 PDF uploads per month</p>
           <button
             onClick={() => PRICE_BASIC && handleSubscribe(PRICE_BASIC, 'basic')}
@@ -63,7 +63,7 @@ export default function UpgradePlans({ onClose }: UpgradePlansProps) {
           </button>
         </div>
         <div className="border border-gray-200 rounded-xl p-6 bg-white">
-          <h4 className="font-semibold text-gray-900 mb-1">Pro — $10/month</h4>
+          <h4 className="font-semibold text-gray-900 mb-1">Pro — $6.99/month</h4>
           <p className="text-sm text-gray-600 mb-4">10 PDF uploads per month</p>
           <button
             onClick={() => PRICE_PRO && handleSubscribe(PRICE_PRO, 'pro')}
