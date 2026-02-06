@@ -72,7 +72,7 @@ export default function HomePage() {
             <span className="text-blue-600"> One PDF. AI does the rest.</span>
           </h1>
           <p className="text-base sm:text-xl text-gray-600 mb-6 max-w-2xl mx-auto px-0">
-            Use the full budget app for free—then upload your card or statement PDF once. 
+            Use the full budget app for free, then upload your card or statement PDF once. 
             AI categorizes every transaction. No bank linking, no daily logging, no big-app lock-in.
           </p>
           <p className="text-sm text-gray-500 mb-8 max-w-xl mx-auto">
@@ -121,7 +121,7 @@ export default function HomePage() {
             See what you get
           </h2>
           <p className="text-sm sm:text-base text-gray-600 text-center mb-6 max-w-xl mx-auto">
-            Overview, transactions, and calendar—all in one place. Like it? Create an account and start free.
+            Overview, transactions, and calendar, all in one place. Like it? Create an account and start free.
           </p>
           <div className="flex flex-col gap-6 sm:gap-8">
             <div className="rounded-xl overflow-hidden border border-gray-200 shadow-lg bg-white">
@@ -181,7 +181,7 @@ export default function HomePage() {
               No bank connections
             </h3>
             <p className="text-gray-600">
-              Your banks stay disconnected. No linking accounts—no risk to your personal info. 
+              Your banks stay disconnected. No linking accounts, no risk to your personal info. 
               You control what you upload.
             </p>
           </div>
@@ -197,7 +197,7 @@ export default function HomePage() {
               Upload PDF, once a month
             </h3>
             <p className="text-gray-600">
-              Credit card transaction history or bank statement—just upload the PDF. 
+              Credit card transaction history or bank statement. Just upload the PDF. 
               AI extracts and categorizes everything. No daily logging.
             </p>
           </div>

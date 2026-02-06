@@ -64,8 +64,7 @@ export default function SubscriptionModal({ onClose }: SubscriptionModalProps) {
       });
       const data = await res.json();
       if (!data.success || !data.data?.url) {
-        const msg = data.detail ? `${data.error}: ${data.detail}` : (data.error || 'Failed to open billing portal');
-        toast.error(msg);
+        toast.error(data.error || 'Failed to open billing portal');
         setPortalLoading(false);
         return;
       }
