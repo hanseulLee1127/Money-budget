@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuthContext } from '@/components/AuthProvider';
 
 export default function HomePage() {
@@ -42,6 +43,12 @@ export default function HomePage() {
           </div>
           <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
             <Link
+              href="/pricing"
+              className="px-3 py-2 sm:px-4 text-sm sm:text-base text-gray-700 hover:text-blue-600 transition hidden sm:inline"
+            >
+              Pricing
+            </Link>
+            <Link
               href="/login"
               className="px-3 py-2 sm:px-4 text-sm sm:text-base text-gray-700 hover:text-blue-600 transition"
             >
@@ -61,13 +68,15 @@ export default function HomePage() {
       <main className="container mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-32">
         <div className="text-center max-w-4xl mx-auto">
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-4 sm:mb-6">
-            No bank links.
-            <span className="text-blue-600"> No daily logging.</span>
+            Free budget.
+            <span className="text-blue-600"> One PDF. AI does the rest.</span>
           </h1>
-          <p className="text-base sm:text-xl text-gray-600 mb-8 sm:mb-10 max-w-2xl mx-auto px-0">
-            Just upload your credit card history or bank statement PDF once a month. 
-            AI categorizes everything—no sharing accounts, no risk to your personal info. 
-            Keep your budget with one upload.
+          <p className="text-base sm:text-xl text-gray-600 mb-6 max-w-2xl mx-auto px-0">
+            Use the full budget app for free—then upload your card or statement PDF once. 
+            AI categorizes every transaction. No bank linking, no daily logging, no big-app lock-in.
+          </p>
+          <p className="text-sm text-gray-500 mb-8 max-w-xl mx-auto">
+            Why pay for heavy apps or connect your bank? Get charts, calendar, and categories from a single upload.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -103,6 +112,59 @@ export default function HomePage() {
             >
               Your browser does not support the video tag.
             </video>
+          </div>
+        </section>
+
+        {/* See what you get: Overview, Transactions, Calendar (세로 일렬, 라벨 위, 사이 공백) */}
+        <section className="mt-16 sm:mt-24 max-w-4xl mx-auto px-2">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 text-center mb-2">
+            See what you get
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600 text-center mb-6 max-w-xl mx-auto">
+            Overview, transactions, and calendar—all in one place. Like it? Create an account and start free.
+          </p>
+          <div className="flex flex-col gap-6 sm:gap-8">
+            <div className="rounded-xl overflow-hidden border border-gray-200 shadow-lg bg-white">
+              <p className="text-center text-sm font-semibold text-gray-800 py-3 bg-gray-50 border-b border-gray-100">Overview</p>
+              <Image
+                src="/landing-1.png"
+                alt="Overview"
+                width={800}
+                height={560}
+                className="w-full h-auto block"
+                unoptimized
+              />
+            </div>
+            <div className="rounded-xl overflow-hidden border border-gray-200 shadow-lg bg-white">
+              <p className="text-center text-sm font-semibold text-gray-800 py-3 bg-gray-50 border-b border-gray-100">Transactions</p>
+              <Image
+                src="/landing-2.png"
+                alt="Transactions"
+                width={800}
+                height={560}
+                className="w-full h-auto block"
+                unoptimized
+              />
+            </div>
+            <div className="rounded-xl overflow-hidden border border-gray-200 shadow-lg bg-white">
+              <p className="text-center text-sm font-semibold text-gray-800 py-3 bg-gray-50 border-b border-gray-100">Calendar</p>
+              <Image
+                src="/landing-3.png"
+                alt="Calendar"
+                width={800}
+                height={560}
+                className="w-full h-auto block"
+                unoptimized
+              />
+            </div>
+          </div>
+          <div className="text-center mt-6">
+            <Link
+              href="/signup"
+              className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition"
+            >
+              Create free account
+            </Link>
           </div>
         </section>
 
@@ -161,6 +223,11 @@ export default function HomePage() {
       {/* 푸터 */}
       <footer className="border-t border-gray-200 py-6 sm:py-8">
         <div className="container mx-auto px-4 sm:px-6 text-center text-gray-600 text-sm sm:text-base">
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-1 mb-2">
+            <Link href="/pricing" className="hover:text-blue-600 transition">Pricing</Link>
+            <Link href="/login" className="hover:text-blue-600 transition">Sign In</Link>
+            <Link href="/signup" className="hover:text-blue-600 transition">Get Started</Link>
+          </div>
           <p>&copy; 2026 Money Budget. All rights reserved.</p>
         </div>
       </footer>

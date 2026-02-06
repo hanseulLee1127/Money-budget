@@ -14,6 +14,7 @@ import MonthlyBarChart from '@/components/Charts/MonthlyBarChart';
 import AddTransactionModal from '@/components/AddTransactionModal';
 import EditTransactionModal from '@/components/EditTransactionModal';
 import DeleteRecurringModal from '@/components/DeleteRecurringModal';
+import SubscriptionModal from '@/components/SubscriptionModal';
 import InsightsTab from '@/components/InsightsTab';
 
 function DashboardContent() {
@@ -28,6 +29,7 @@ function DashboardContent() {
   const [deletingRecurringTransaction, setDeletingRecurringTransaction] = useState<Transaction | null>(null);
   const [pendingDeleteTransaction, setPendingDeleteTransaction] = useState<Transaction | null>(null);
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'transactions' | 'calendar' | 'insights'>('overview');
   
   // 월별 필터 상태 (초기값은 빈 문자열, useEffect에서 설정)
@@ -68,17 +70,55 @@ function DashboardContent() {
     }
   }, [user, authLoading, router]);
 
-  // Stripe 구독 성공/취소 후 리다이렉트 시 토스트
+  // 대시보드 진입 시 Firestore users 문서 없으면 서버에서 생성
+  useEffect(() => {
+    if (!user) return;
+    user.getIdToken().then((token) => {
+      fetch('/api/user/ensure-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      }).catch(() => {});
+    });
+  }, [user?.uid]);
+
+  // Stripe 구독 성공/취소 후 리다이렉트 시: 유저·구독 동기화 후 토스트
   useEffect(() => {
     const sub = searchParams.get('subscription');
-    if (sub === 'success') {
-      toast.success('Subscription activated. You can upload more PDFs now.');
-      router.replace('/dashboard', { scroll: false });
-    } else if (sub === 'cancelled') {
+    const sessionId = searchParams.get('session_id');
+    if (sub === 'cancelled') {
       toast('Checkout cancelled.');
       router.replace('/dashboard', { scroll: false });
+      return;
     }
-  }, [searchParams, router]);
+    if (sub === 'success' && user) {
+      (async () => {
+        try {
+          const token = await user.getIdToken();
+          await fetch('/api/user/ensure-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          });
+          if (sessionId) {
+            const res = await fetch('/api/stripe/confirm-subscription', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+              body: JSON.stringify({ session_id: sessionId }),
+            });
+            if (res.ok) {
+              toast.success('Subscription activated. You can upload more PDFs now.');
+            } else {
+              toast.success('Welcome back. If your plan does not show, open Subscription to refresh.');
+            }
+          } else {
+            toast.success('Subscription activated. You can upload more PDFs now.');
+          }
+        } catch {
+          toast.success('Welcome back. If your plan does not show, open Subscription to refresh.');
+        }
+        router.replace('/dashboard', { scroll: false });
+      })();
+    }
+  }, [searchParams, router, user]);
 
   // 데이터 로드
   const loadData = useCallback(async () => {
@@ -480,6 +520,12 @@ function DashboardContent() {
               >
                 Upload PDF
               </Link>
+              <button
+                onClick={() => setShowSubscriptionModal(true)}
+                className="px-3 py-2 sm:px-4 text-sm sm:text-base text-gray-600 hover:text-gray-800 transition whitespace-nowrap"
+              >
+                Subscription
+              </button>
               <button
                 onClick={handleSignOut}
                 className="px-3 py-2 sm:px-4 text-sm sm:text-base text-gray-600 hover:text-gray-800 transition whitespace-nowrap"
@@ -1056,12 +1102,13 @@ function DashboardContent() {
           const canGoNext = !!selectedMonth && availableMonths.some((m) => m > selectedMonth);
 
           return (
-            /* 캘린더 탭 */
-            <div className="max-w-4xl mx-auto space-y-4">
-              {/* 캘린더 + 오른쪽 여백(화살표) - 모바일에서 화살표 영역 숨김 */}
-              <div className="flex items-stretch gap-2 sm:gap-4">
+            /* 캘린더 탭: 캘린더와 아래 리스트 같은 너비 */
+            <div className="max-w-4xl mx-auto">
+              <div className="flex gap-2 sm:gap-4">
+                {/* 왼쪽: 캘린더 + 선택일 거래 리스트 (동일 너비) */}
+                <div className="flex-1 min-w-0 flex flex-col gap-4">
                 {/* 캘린더 */}
-                <div className="flex-1 min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-4 md:p-6 overflow-x-auto">
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-4 md:p-6 overflow-x-auto">
                 {/* 월 제목 with 네비게이션 및 요약 */}
                 <div className="mb-4">
                   <div className="flex items-center justify-between">
@@ -1210,23 +1257,9 @@ function DashboardContent() {
               </div>
                 </div>
 
-                {/* 오른쪽 여백 중간: 아이템 있는 날 클릭 시 아래 방향 화살표 2개 점등 (3초 후 사라짐) - md 이상에서만 표시 */}
-                <div className="hidden md:flex w-14 flex-shrink-0 flex-col items-center justify-center min-h-[320px]">
-                  {showCalendarDownArrow && (
-                    <div className="flex flex-col items-center gap-2 animate-bounce" aria-hidden>
-                      {[1, 2].map((i) => (
-                        <svg key={i} className="w-8 h-8 text-blue-500 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M19 9l-7 7-7-7" />
-                        </svg>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            
-            {/* 선택된 날짜의 거래 목록 */}
-            {selectedDate && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                {/* 선택된 날짜의 거래 목록 (캘린더와 동일 너비) */}
+                {selectedDate && (
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="px-5 py-3 border-b border-gray-200 bg-gray-50">
                   <h3 className="text-base font-semibold text-gray-900">
                     {format(new Date(selectedDate + 'T12:00:00'), 'MMMM d, yyyy')}
@@ -1283,7 +1316,22 @@ function DashboardContent() {
                 )}
               </div>
             )}
-          </div>
+                </div>
+
+                {/* 오른쪽 여백: 아이템 있는 날 클릭 시 아래 방향 화살표 - md 이상에서만 */}
+                <div className="hidden md:flex w-14 flex-shrink-0 flex-col items-center justify-center min-h-[320px]">
+                  {showCalendarDownArrow && (
+                    <div className="flex flex-col items-center gap-2 animate-bounce" aria-hidden>
+                      {[1, 2].map((i) => (
+                        <svg key={i} className="w-8 h-8 text-blue-500 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M19 9l-7 7-7-7" />
+                        </svg>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           );
         })()}
 
@@ -1413,6 +1461,10 @@ function DashboardContent() {
             </div>
           </div>
         </div>
+      )}
+
+      {showSubscriptionModal && (
+        <SubscriptionModal onClose={() => setShowSubscriptionModal(false)} />
       )}
     </div>
   );

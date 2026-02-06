@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${baseUrl}/dashboard?subscription=success`,
+      success_url: `${baseUrl}/dashboard?subscription=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/dashboard?subscription=cancelled`,
       client_reference_id: uid,
       customer_email: email,

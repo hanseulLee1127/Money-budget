@@ -42,6 +42,7 @@ export default function UploadPage() {
         if (!token || cancelled) return;
         const res = await fetch('/api/subscription/status', {
           headers: { Authorization: `Bearer ${token}` },
+          cache: 'no-store',
         });
         if (!res.ok || cancelled) return;
         const json = await res.json();
@@ -86,14 +87,23 @@ export default function UploadPage() {
         setStep('upload');
         return;
       }
-      
-      // 업로드 1회 사용 처리
-      const token = await getAuth().currentUser?.getIdToken();
+
+      // 업로드 1회 사용 처리 (한도 반영용 — 실패해도 리뷰는 진행)
+      let token = await getAuth().currentUser?.getIdToken();
+      if (!token) {
+        await new Promise((r) => setTimeout(r, 300));
+        token = await getAuth().currentUser?.getIdToken(true);
+      }
       if (token) {
-        await fetch('/api/subscription/record-upload', {
+        const recordRes = await fetch('/api/subscription/record-upload', {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}` },
         });
+        if (!recordRes.ok) {
+          const err = await recordRes.json().catch(() => ({}));
+          console.error('Record upload failed', recordRes.status, err);
+          toast.error(err?.error || 'Upload count could not be updated.');
+        }
       }
 
       setParsedTransactions(categorizedTransactions);
@@ -208,14 +218,41 @@ export default function UploadPage() {
             </div>
           </div>
 
-          {/* 업로드 불가 시 구독 유도 */}
+          {/* 업로드 불가 시 */}
           {step === 'upload' && subscription && !subscription.canUpload && (
             <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">PDF upload limit reached</h3>
-              <p className="text-gray-600 mb-6">
-                Subscribe to upload more PDFs (credit card or debit card transaction history). Free trial: 1 upload. Plans: $2.99/month (3 uploads) or $6.99/month (10 uploads).
-              </p>
-              <UpgradePlans onClose={() => router.push('/dashboard')} />
+              {(subscription.plan === 'pro' || subscription.limit === 10) ? (
+                <>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">You&apos;ve used all 10 uploads this period</h3>
+                  <p className="text-gray-600 mb-6">
+                    Please wait for next month. Your upload limit will reset at the start of your billing cycle.
+                  </p>
+                  <div className="text-center">
+                    <button
+                      onClick={() => router.push('/dashboard')}
+                      className="px-6 py-2 text-gray-600 hover:text-gray-900 transition"
+                    >
+                      Back to Dashboard
+                    </button>
+                  </div>
+                </>
+              ) : subscription.plan === 'basic' ? (
+                <>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">You&apos;ve used all 3 uploads on your Basic plan</h3>
+                  <p className="text-gray-600 mb-6">
+                    Upgrade to Pro for 10 PDF uploads per month and upload more transaction history this period.
+                  </p>
+                  <UpgradePlans onClose={() => router.push('/dashboard')} upgradeFromPlan="basic" />
+                </>
+              ) : (
+                <>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">PDF upload limit reached</h3>
+                  <p className="text-gray-600 mb-6">
+                    Subscribe to upload more PDFs (credit card or debit card transaction history). Free trial: 1 upload. Plans: $3.99/month (3 uploads) or $6.99/month (10 uploads).
+                  </p>
+                  <UpgradePlans onClose={() => router.push('/dashboard')} />
+                </>
+              )}
             </div>
           )}
 

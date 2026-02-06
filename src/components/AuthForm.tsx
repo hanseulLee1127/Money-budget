@@ -8,9 +8,11 @@ interface AuthFormProps {
   onSubmit: (email: string, password: string) => Promise<void>;
   error: string | null;
   loading: boolean;
+  /** plan=basic|pro: 로그인/회원가입 후 결제 페이지로 이동 */
+  plan?: string | null;
 }
 
-export default function AuthForm({ mode, onSubmit, error, loading }: AuthFormProps) {
+export default function AuthForm({ mode, onSubmit, error, loading, plan }: AuthFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -151,14 +153,14 @@ export default function AuthForm({ mode, onSubmit, error, loading }: AuthFormPro
           {mode === 'signin' ? (
             <p className="text-gray-600">
               Don&apos;t have an account?{' '}
-              <Link href="/signup" className="text-blue-600 hover:text-blue-700 font-medium">
+              <Link href={plan ? `/signup?plan=${plan}` : '/signup'} className="text-blue-600 hover:text-blue-700 font-medium">
                 Sign up
               </Link>
             </p>
           ) : (
             <p className="text-gray-600">
               Already have an account?{' '}
-              <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+              <Link href={plan ? `/login?plan=${plan}` : '/login'} className="text-blue-600 hover:text-blue-700 font-medium">
                 Sign in
               </Link>
             </p>

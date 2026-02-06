@@ -6,13 +6,16 @@ import toast from 'react-hot-toast';
 
 interface UpgradePlansProps {
   onClose?: () => void;
+  /** Basic 사용자가 한도 소진 시 Pro만 표시 */
+  upgradeFromPlan?: 'basic' | null;
 }
 
 const PRICE_BASIC = process.env.NEXT_PUBLIC_STRIPE_PRICE_BASIC;
 const PRICE_PRO = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO;
 
-export default function UpgradePlans({ onClose }: UpgradePlansProps) {
+export default function UpgradePlans({ onClose, upgradeFromPlan }: UpgradePlansProps) {
   const [loading, setLoading] = useState<'basic' | 'pro' | null>(null);
+  const showOnlyPro = upgradeFromPlan === 'basic';
 
   const handleSubscribe = async (priceId: string, plan: 'basic' | 'pro') => {
     if (!priceId) {
@@ -50,18 +53,20 @@ export default function UpgradePlans({ onClose }: UpgradePlansProps) {
 
   return (
     <div className="space-y-4">
-      <div className="grid sm:grid-cols-2 gap-4">
-        <div className="border border-gray-200 rounded-xl p-6 bg-white">
-          <h4 className="font-semibold text-gray-900 mb-1">Basic — $2.99/month</h4>
-          <p className="text-sm text-gray-600 mb-4">3 PDF uploads per month</p>
-          <button
-            onClick={() => PRICE_BASIC && handleSubscribe(PRICE_BASIC, 'basic')}
-            disabled={!PRICE_BASIC || loading !== null}
-            className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading === 'basic' ? 'Redirecting...' : 'Subscribe'}
-          </button>
-        </div>
+      <div className={showOnlyPro ? '' : 'grid sm:grid-cols-2 gap-4'}>
+        {!showOnlyPro && (
+          <div className="border border-gray-200 rounded-xl p-6 bg-white">
+            <h4 className="font-semibold text-gray-900 mb-1">Basic — $3.99/month</h4>
+            <p className="text-sm text-gray-600 mb-4">3 PDF uploads per month</p>
+            <button
+              onClick={() => PRICE_BASIC && handleSubscribe(PRICE_BASIC, 'basic')}
+              disabled={!PRICE_BASIC || loading !== null}
+              className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading === 'basic' ? 'Redirecting...' : 'Subscribe'}
+            </button>
+          </div>
+        )}
         <div className="border border-gray-200 rounded-xl p-6 bg-white">
           <h4 className="font-semibold text-gray-900 mb-1">Pro — $6.99/month</h4>
           <p className="text-sm text-gray-600 mb-4">10 PDF uploads per month</p>
@@ -70,7 +75,7 @@ export default function UpgradePlans({ onClose }: UpgradePlansProps) {
             disabled={!PRICE_PRO || loading !== null}
             className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading === 'pro' ? 'Redirecting...' : 'Subscribe'}
+            {loading === 'pro' ? 'Redirecting...' : showOnlyPro ? 'Upgrade to Pro' : 'Subscribe'}
           </button>
         </div>
       </div>
