@@ -8,6 +8,8 @@ import {
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
   sendPasswordResetEmail,
+  setPersistence,
+  browserSessionPersistence,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
@@ -33,6 +35,11 @@ export function useAuth(): UseAuthReturn {
     loading: true,
     error: null,
   });
+
+  // 세션만 유지: 탭/창 닫으면 로그아웃 (localStorage 대신 sessionStorage)
+  useEffect(() => {
+    setPersistence(auth, browserSessionPersistence).catch(() => {});
+  }, []);
 
   // 인증 상태 변경 감지
   useEffect(() => {
