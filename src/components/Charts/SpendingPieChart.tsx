@@ -1,7 +1,7 @@
 'use client';
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { getCategoryById } from '@/lib/categories';
+import { getCategoryForDisplay } from '@/lib/categories';
 
 interface CategoryTotal {
   category: string;
@@ -14,7 +14,7 @@ interface SpendingPieChartProps {
 
 export default function SpendingPieChart({ data }: SpendingPieChartProps) {
   const chartData = data.map((item) => {
-    const category = getCategoryById(item.category.toLowerCase());
+    const category = getCategoryForDisplay(item.category);
     return {
       name: item.category,
       value: item.total,

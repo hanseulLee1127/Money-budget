@@ -37,7 +37,7 @@ export default function HomePage() {
       {/* 네비게이션 */}
       <nav className="container mx-auto px-4 sm:px-6 py-4">
         <div className="flex items-center justify-between gap-4">
-          <div className="text-xl sm:text-2xl font-bold text-blue-600 truncate min-w-0">
+          <div className="text-2xl sm:text-3xl font-bold text-blue-600 truncate min-w-0">
             Money Budget
           </div>
           <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">

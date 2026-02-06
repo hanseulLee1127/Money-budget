@@ -4,9 +4,9 @@ import { Category } from '@/types';
 export const DEFAULT_CATEGORIES: Category[] = [
   {
     id: 'food',
-    name: 'Food',
+    name: 'Food and Grocery',
     color: '#ef4444', // red-500
-    icon: '🍔',
+    icon: '🛒',
     isDefault: true,
   },
   {
@@ -91,6 +91,19 @@ export function getCategoryByName(name: string): Category | undefined {
 // 카테고리 ID로 카테고리 찾기
 export function getCategoryById(id: string): Category | undefined {
   return DEFAULT_CATEGORIES.find((cat) => cat.id === id);
+}
+
+// ID 또는 이름으로 카테고리 찾기 (트랜잭션 표시용 - AI는 name 저장)
+export function getCategoryForDisplay(value: string): Category | undefined {
+  if (!value || typeof value !== 'string') return undefined;
+  const v = value.trim();
+  const byId = getCategoryById(v.toLowerCase());
+  if (byId) return byId;
+  const byName = getCategoryByName(v);
+  if (byName) return byName;
+  // Legacy: "Food" -> Food and Grocery
+  if (v.toLowerCase() === 'food') return DEFAULT_CATEGORIES.find((c) => c.id === 'food');
+  return undefined;
 }
 
 // 카테고리 이름 목록 (AI 프롬프트용)

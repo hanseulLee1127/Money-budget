@@ -177,7 +177,7 @@ export default function ReviewPage() {
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <Link href="/dashboard" className="text-lg sm:text-2xl font-bold text-blue-600 truncate min-w-0">
+            <Link href="/dashboard" className="text-xl sm:text-3xl font-bold text-blue-600 truncate min-w-0">
               Money Budget
             </Link>
             <div className="flex flex-wrap items-center gap-2 sm:gap-4 flex-shrink-0">

@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import { useAuthContext } from '@/components/AuthProvider';
 import { getTransactions, getCategoryTotals, addTransaction, deleteTransaction, updateTransaction, deleteTransactionsByMonth, generateRecurringTransactions, deleteRecurringSeries } from '@/lib/firestore';
 import { Transaction } from '@/types';
-import { getCategoryById, DEFAULT_CATEGORIES } from '@/lib/categories';
+import { getCategoryForDisplay, DEFAULT_CATEGORIES } from '@/lib/categories';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameDay } from 'date-fns';
 import SpendingPieChart from '@/components/Charts/SpendingPieChart';
 import MonthlyBarChart from '@/components/Charts/MonthlyBarChart';
@@ -469,7 +469,7 @@ function DashboardContent() {
           <div className="flex items-center justify-between gap-3">
             <button 
               onClick={handleResetDashboard}
-              className="text-lg sm:text-2xl font-bold text-blue-600 hover:text-blue-700 transition truncate min-w-0 text-left"
+              className="text-xl sm:text-3xl font-bold text-blue-600 hover:text-blue-700 transition truncate min-w-0 text-left"
             >
               Money Budget
             </button>
@@ -762,7 +762,7 @@ function DashboardContent() {
               ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {monthlyCategoryTotals.map((item) => {
-                    const category = getCategoryById(item.category.toLowerCase());
+                    const category = getCategoryForDisplay(item.category);
                     const percentage = monthlySpending > 0 ? (item.total / monthlySpending) * 100 : 0;
                     const isSelected = selectedCategory === item.category;
                     
@@ -854,7 +854,7 @@ function DashboardContent() {
                       All
                     </button>
                     {categoryList.map((item) => {
-                      const category = getCategoryById(item.category.toLowerCase());
+                      const category = getCategoryForDisplay(item.category);
                       const isSelected = selectedCategory === item.category;
                       const count = relevantTransactions.filter(t => t.category === item.category).length;
                       
@@ -891,7 +891,7 @@ function DashboardContent() {
                   <tr>
                     <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Date</th>
                     <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-0">Description</th>
-                    <th className="px-3 py-2.5 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-36">Category</th>
+                    <th className="px-3 py-2.5 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-40">Category</th>
                     <th className="px-3 py-2.5 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-26">Amount</th>
                     <th className="px-3 py-2.5 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-30">Actions</th>
                   </tr>
@@ -925,7 +925,7 @@ function DashboardContent() {
                     </tr>
                   ) : (
                     filteredTransactions.map((transaction) => {
-                      const category = getCategoryById(transaction.category.toLowerCase());
+                      const category = getCategoryForDisplay(transaction.category);
                       
                       return (
                         <tr key={transaction.id} className="hover:bg-gray-50">
@@ -935,13 +935,13 @@ function DashboardContent() {
                           <td className="px-4 py-3 text-sm text-gray-900 min-w-0 overflow-hidden">
                             <span className="block truncate max-w-full" title={transaction.description}>{transaction.description}</span>
                           </td>
-                          <td className="px-3 py-3 w-36 overflow-hidden text-center">
+                          <td className="px-3 py-3 w-40 text-center">
                             <button
                               onClick={() => {
                                 setSelectedCategory(transaction.category);
                                 setCardFilter(null);
                               }}
-                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium hover:opacity-80 transition"
+                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium hover:opacity-80 transition whitespace-nowrap"
                               style={{ backgroundColor: `${category?.color}20`, color: category?.color }}
                             >
                               {category?.icon} {transaction.category}
@@ -1004,7 +1004,7 @@ function DashboardContent() {
                 </div>
               ) : (
                 filteredTransactions.map((transaction) => {
-                  const category = getCategoryById(transaction.category.toLowerCase());
+                  const category = getCategoryForDisplay(transaction.category);
                   return (
                     <div key={transaction.id} className="p-4 bg-white hover:bg-gray-50">
                       <div className="flex items-start justify-between gap-3">
@@ -1014,7 +1014,7 @@ function DashboardContent() {
                             <span className="text-xs text-gray-500">{transaction.date}</span>
                             <button
                               onClick={() => { setSelectedCategory(transaction.category); setCardFilter(null); }}
-                              className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                              className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap"
                               style={{ backgroundColor: `${category?.color}20`, color: category?.color }}
                             >
                               {category?.icon} {transaction.category}
@@ -1240,21 +1240,18 @@ function DashboardContent() {
                 ) : (
                   <div className="divide-y divide-gray-100">
                     {selectedDateTransactions.map((transaction) => {
-                      const category = getCategoryById(transaction.category.toLowerCase());
+                      const category = getCategoryForDisplay(transaction.category);
                       
                       return (
                         <div key={transaction.id} className="px-5 py-3 flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <span className="text-xl">{category?.icon || '📦'}</span>
-                            <div>
-                              <p className="font-medium text-gray-900 text-sm">{transaction.description}</p>
-                              <span 
-                                className="text-xs px-2 py-0.5 rounded-full"
-                                style={{ backgroundColor: `${category?.color}20`, color: category?.color }}
-                              >
-                                {transaction.category}
-                              </span>
-                            </div>
+                          <div>
+                            <p className="font-medium text-gray-900 text-sm">{transaction.description}</p>
+                            <span 
+                              className="text-xs px-2 py-0.5 rounded-full whitespace-nowrap"
+                              style={{ backgroundColor: `${category?.color}20`, color: category?.color }}
+                            >
+                              {transaction.category}
+                            </span>
                           </div>
                           <span className={`text-base font-bold ${transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
                             {transaction.amount < 0 ? '-' : '+'}$

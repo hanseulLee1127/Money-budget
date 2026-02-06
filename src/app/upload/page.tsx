@@ -132,7 +132,7 @@ export default function UploadPage() {
       <nav className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-3">
-            <Link href="/dashboard" className="text-lg sm:text-2xl font-bold text-blue-600 truncate min-w-0">
+            <Link href="/dashboard" className="text-xl sm:text-3xl font-bold text-blue-600 truncate min-w-0">
               Money Budget
             </Link>
             <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">

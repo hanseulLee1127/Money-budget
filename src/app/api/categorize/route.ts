@@ -103,11 +103,14 @@ Classify as **Income** when ANY of these patterns match:
 
 ## 4. Expense Classification (NEGATIVE amounts)
 Match to most specific category available:
-- "Amazon", "Target", "Walmart" → Shopping
-- "Shell", "Chevron", "BP" → Gas/Transportation
-- Restaurant names, "Uber Eats", "DoorDash" → Food/Dining
-- "Netflix", "Spotify", "Adobe" → Subscriptions
-- Utility companies → Bills/Utilities
+- **Food and Grocery** (use this for groceries, supermarkets, warehouse clubs, restaurants, delivery):
+  - Warehouse clubs / bulk retailers: "Costco", "Sam's Club", "BJ's"
+  - Supermarkets / grocery: "Walmart", "Kroger", "Safeway", "Albertsons", "Publix", "Whole Foods", "Trader Joe's", "H-E-B", "Giant", "Food Lion", "Aldi", "Lidl", any grocery store
+  - Restaurants, "Uber Eats", "DoorDash", "Grubhub" → Food and Grocery
+- **Shopping** (general retail, not primarily food): "Amazon", "Target" (when not clearly grocery), department stores, clothing, electronics retailers
+- "Shell", "Chevron", "BP" → Transportation
+- "Netflix", "Spotify", "Adobe" → Subscription
+- Utility companies → Utilities
 
 ## 5. EXCLUSION Rules (Do NOT include)
 ⚠️ CRITICAL: Exclude ALL transactions matching these patterns:
