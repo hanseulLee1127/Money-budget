@@ -43,9 +43,10 @@ export async function POST(request: NextRequest) {
       data: { url: session.url },
     });
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     console.error('Create portal session error:', error);
     return NextResponse.json(
-      { error: 'Failed to open billing portal' },
+      { error: 'Failed to open billing portal', detail: message },
       { status: 500 }
     );
   }
