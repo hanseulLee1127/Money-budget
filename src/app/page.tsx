@@ -237,6 +237,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4 sm:px-6 text-center text-gray-600 text-sm sm:text-base">
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-1 mb-2">
             <Link href="/pricing" className="hover:text-blue-600 transition">Pricing</Link>
+            <Link href="/about" className="hover:text-blue-600 transition">About</Link>
             <Link href="/login" className="hover:text-blue-600 transition">Sign In</Link>
             <Link href="/signup" className="hover:text-blue-600 transition">Get Started</Link>
           </div>
