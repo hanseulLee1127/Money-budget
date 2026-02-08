@@ -44,7 +44,7 @@ export default function HomePage() {
           <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
             <Link
               href="/pricing"
-              className="px-3 py-2 sm:px-4 text-sm sm:text-base text-gray-700 hover:text-blue-600 transition hidden sm:inline"
+              className="px-3 py-2 sm:px-4 text-sm sm:text-base text-gray-700 hover:text-blue-600 transition"
             >
               Pricing
             </Link>
