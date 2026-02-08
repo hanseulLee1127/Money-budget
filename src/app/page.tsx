@@ -68,15 +68,15 @@ export default function HomePage() {
       <main className="container mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-16 sm:pb-32">
         <div className="text-center max-w-4xl mx-auto">
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-4 sm:mb-6">
-            Free budget.
-            <span className="text-blue-600"> One PDF. AI does the rest.</span>
+            Want to save money?
+            <span className="text-blue-600"> You need to know where it went.</span>
           </h1>
           <p className="text-base sm:text-xl text-gray-600 mb-6 max-w-2xl mx-auto px-0">
-            Use the full budget app for free, then upload your card or statement PDF once. 
-            AI categorizes every transaction. No bank linking, no daily logging, no big-app lock-in.
+            To save, you need to see exactly how much you spent on which categories. 
+            Money Budget helps you understand your spending and shows you where you can cut back.
           </p>
           <p className="text-sm text-gray-500 mb-8 max-w-xl mx-auto">
-            Why pay for heavy apps or connect your bank? Get charts, calendar, and categories from a single upload.
+            Upload one PDF. AI categorizes everything. No bank linking, no daily logging. Start free.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -97,10 +97,10 @@ export default function HomePage() {
         {/* 데모 비디오 - 얼마나 간단한지 직접 보여주기 (2배속) */}
         <section className="mt-16 sm:mt-24 max-w-4xl mx-auto px-0">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 text-center mb-2 sm:mb-3">
-            See how simple it is
+            See where your money went
           </h2>
           <p className="text-sm sm:text-base text-gray-600 text-center mb-6 sm:mb-8 max-w-xl mx-auto px-2">
-            Upload PDF → AI categorizes → Review & save. No bank links, no daily logging.
+            Upload your card or statement PDF. AI sorts spending by category. Review, then spot where to save.
           </p>
           <div className="rounded-2xl overflow-hidden shadow-xl border border-gray-200 bg-black">
             <video
@@ -118,10 +118,10 @@ export default function HomePage() {
         {/* See what you get: Overview, Transactions, Calendar (세로 일렬, 라벨 위, 사이 공백) */}
         <section className="mt-16 sm:mt-24 max-w-4xl mx-auto px-2">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 text-center mb-2">
-            See what you get
+            Your spending, by category
           </h2>
           <p className="text-sm sm:text-base text-gray-600 text-center mb-6 max-w-xl mx-auto">
-            Overview, transactions, and calendar, all in one place. Like it? Create an account and start free.
+            Overview, transactions, and calendar in one place. Understand your habits, then decide where to save.
           </p>
           <div className="flex flex-col gap-6 sm:gap-8">
             <div className="rounded-xl overflow-hidden border border-gray-200 shadow-lg bg-white">
@@ -168,6 +168,18 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* PDF 업로드 = 유니크 포인트 + 안전성 */}
+        <section className="mt-16 sm:mt-24 max-w-3xl mx-auto px-4">
+          <div className="bg-white/80 backdrop-blur rounded-2xl border border-gray-200 shadow-lg p-6 sm:p-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 text-center mb-3">
+              Why PDF? Safe by design
+            </h2>
+            <p className="text-gray-600 text-center text-sm sm:text-base leading-relaxed">
+              Card transaction history has far less personal info than people think. That’s why we built around PDF upload. No bank linking, and you stay in control. Before any PDF is sent to AI, we strip out account numbers, routing numbers, names, and addresses. Only transaction lines (merchant, date, amount) are used for categorization, so your data stays minimal and safe.
+            </p>
+          </div>
+        </section>
+
         {/* 기능 소개 */}
         <div className="mt-16 sm:mt-32 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
           {/* 기능 1 */}
@@ -210,11 +222,11 @@ export default function HomePage() {
               </svg>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-3">
-              Easy budget, one upload
+              Know where to save
             </h3>
             <p className="text-gray-600">
-              See where your money went with charts and a calendar. 
-              One upload per month is enough to keep your budget in shape.
+              Charts and calendar show where your money went. 
+              Once you see it by category, you get a clear idea where you can save.
             </p>
           </div>
         </div>
