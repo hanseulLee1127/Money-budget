@@ -158,17 +158,22 @@ export default function EditTransactionModal({
 
           {/* Recurring 옵션 */}
           <div className="p-3 bg-blue-50 rounded-lg border border-blue-100 space-y-3">
-            <div className="flex items-center gap-3">
+            <div className="flex items-start gap-3">
               <input
                 type="checkbox"
                 id="edit-recurring"
                 checked={isRecurring}
                 onChange={(e) => setIsRecurring(e.target.checked)}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                className="w-4 h-4 mt-0.5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
               />
-              <label htmlFor="edit-recurring" className="text-sm font-medium text-gray-700 cursor-pointer">
-                Recurring Transaction - Automatically repeat this transaction
-              </label>
+              <div>
+                <label htmlFor="edit-recurring" className="text-sm font-medium text-gray-700 cursor-pointer block">
+                  Recurring Transaction — Automatically repeat this transaction
+                </label>
+                <p className="text-xs text-gray-500 mt-1">
+                  From the date you set through the current month. When the next month starts, that month&apos;s occurrence will be added automatically.
+                </p>
+              </div>
             </div>
 
             {/* Frequency 선택 (체크박스 선택 시에만 표시) */}

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useAuthContext } from '@/components/AuthProvider';
-import { getTransactions, getCategoryTotals, addTransaction, deleteTransaction, updateTransaction, deleteTransactionsByMonth, generateRecurringTransactions, deleteRecurringSeries } from '@/lib/firestore';
+import { getTransactions, getCategoryTotals, addTransaction, addRecurringTransaction, deleteTransaction, updateTransaction, deleteTransactionsByMonth, generateRecurringTransactions, deleteRecurringSeries } from '@/lib/firestore';
 import { Transaction } from '@/types';
 import { getCategoryForDisplay, DEFAULT_CATEGORIES } from '@/lib/categories';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameDay } from 'date-fns';
@@ -163,20 +163,32 @@ function DashboardContent() {
     if (!user) return;
 
     try {
-      await addTransaction(user.uid, {
-        ...newTransaction,
-        isConfirmed: true,
-        ...(newTransaction.isRecurring && {
-          isRecurring: true,
-          recurringFrequency: newTransaction.recurringFrequency || 'monthly',
+      if (newTransaction.isRecurring && newTransaction.recurringFrequency && newTransaction.recurringDay !== undefined) {
+        const ids = await addRecurringTransaction(user.uid, {
+          date: newTransaction.date,
+          description: newTransaction.description,
+          amount: newTransaction.amount,
+          category: newTransaction.category,
+          recurringFrequency: newTransaction.recurringFrequency,
           recurringDay: newTransaction.recurringDay,
-        }),
-      });
-      toast.success(
-        newTransaction.isRecurring 
-          ? `Recurring transaction added (${newTransaction.recurringFrequency})` 
-          : 'Transaction added successfully'
-      );
+        });
+        toast.success(
+          ids.length === 1
+            ? `Recurring transaction added (${newTransaction.recurringFrequency})`
+            : `Added ${ids.length} recurring transactions through this month (${newTransaction.recurringFrequency})`
+        );
+      } else {
+        await addTransaction(user.uid, {
+          ...newTransaction,
+          isConfirmed: true,
+          ...(newTransaction.isRecurring && {
+            isRecurring: true,
+            recurringFrequency: newTransaction.recurringFrequency || 'monthly',
+            recurringDay: newTransaction.recurringDay,
+          }),
+        });
+        toast.success('Transaction added successfully');
+      }
       setShowAddModal(false);
       loadData();
     } catch (error) {

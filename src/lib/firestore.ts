@@ -381,6 +381,59 @@ function getNextOccurrence(
 }
 
 /**
+ * 시작일부터 현재 달 마지막일까지의 recurring 발생일 목록 (시작일·현재 달 포함)
+ * 예: 1월 20일 monthly 추가 시 이번 달이 2월이면 → [1월 20일, 2월 20일]
+ */
+function getRecurringOccurrenceDatesFromStartToCurrentMonth(
+  startDate: string,
+  frequency: 'monthly' | 'bi-weekly' | 'weekly',
+  recurringDay: number
+): string[] {
+  const today = new Date();
+  const endOfCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const endStr = endOfCurrentMonth.toISOString().split('T')[0];
+  const dates: string[] = [];
+  let current = startDate;
+  while (current <= endStr) {
+    dates.push(current);
+    current = getNextOccurrence(current, frequency, recurringDay);
+  }
+  return dates;
+}
+
+/**
+ * Recurring 거래 추가: 시작일부터 현재 달 말까지 모든 발생일을 한 번에 추가
+ */
+export async function addRecurringTransaction(
+  uid: string,
+  data: {
+    date: string;
+    description: string;
+    amount: number;
+    category: string;
+    recurringFrequency: 'monthly' | 'bi-weekly' | 'weekly';
+    recurringDay: number;
+  }
+): Promise<string[]> {
+  const dates = getRecurringOccurrenceDatesFromStartToCurrentMonth(
+    data.date,
+    data.recurringFrequency,
+    data.recurringDay
+  );
+  const transactions = dates.map((date) => ({
+    date,
+    description: data.description,
+    amount: data.amount,
+    category: data.category,
+    isConfirmed: true,
+    isRecurring: true,
+    recurringFrequency: data.recurringFrequency,
+    recurringDay: data.recurringDay,
+  }));
+  return addTransactions(uid, transactions);
+}
+
+/**
  * Recurring 거래 자동 생성
  */
 export async function generateRecurringTransactions(uid: string): Promise<number> {
@@ -390,9 +443,11 @@ export async function generateRecurringTransactions(uid: string): Promise<number
   const recurringTransactions = allTransactions.filter((t) => t.isRecurring && t.recurringFrequency && t.recurringDay !== undefined);
   
   let generatedCount = 0;
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date();
+  const endOfCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const endOfCurrentMonthStr = endOfCurrentMonth.toISOString().split('T')[0];
   
-  console.log(`[Recurring] Today: ${today}, Found ${recurringTransactions.length} recurring transactions`);
+  console.log(`[Recurring] End of current month: ${endOfCurrentMonthStr}, Found ${recurringTransactions.length} recurring transactions`);
   
   for (const recurring of recurringTransactions) {
     console.log(`[Recurring] Processing: ${recurring.description}, Amount: ${recurring.amount}, Frequency: ${recurring.recurringFrequency}`);
@@ -411,10 +466,10 @@ export async function generateRecurringTransactions(uid: string): Promise<number
     
     // 다음 발생 날짜 계산
     let nextDate = getNextOccurrence(lastDate, recurring.recurringFrequency!, recurring.recurringDay!);
-    console.log(`[Recurring] Next occurrence: ${nextDate}, Today: ${today}`);
+    console.log(`[Recurring] Next occurrence: ${nextDate}, End of month: ${endOfCurrentMonthStr}`);
     
-    // 오늘 또는 과거 날짜까지 모든 누락된 거래 생성
-    while (nextDate <= today) {
+    // 현재 달 말일까지 누락된 거래 생성 (3월 1일 로그인 시 3월 20일 항목도 생성)
+    while (nextDate <= endOfCurrentMonthStr) {
       // 이미 해당 날짜에 같은 거래가 있는지 확인
       const exists = allTransactions.some(
         (t) =>
