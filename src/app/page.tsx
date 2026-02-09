@@ -105,7 +105,7 @@ export default function HomePage() {
           <div className="rounded-2xl overflow-hidden shadow-xl border border-gray-200 bg-black">
             <video
               ref={videoRef}
-              src="/demo.mp4"
+              src="/demo.mov"
               controls
               playsInline
               className="w-full aspect-video object-contain"
