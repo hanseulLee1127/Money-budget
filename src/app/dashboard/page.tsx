@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useAuthContext } from '@/components/AuthProvider';
-import { getTransactions, getCategoryTotals, addTransaction, addRecurringTransaction, deleteTransaction, updateTransaction, deleteTransactionsByMonth, generateRecurringTransactions, deleteRecurringSeries } from '@/lib/firestore';
+import { getTransactions, getCategoryTotals, addTransaction, addRecurringTransaction, deleteTransaction, updateTransaction, deleteTransactionsByMonth, generateRecurringTransactions, deleteRecurringSeries, recordRecurringDeletedDate } from '@/lib/firestore';
 import { Transaction } from '@/types';
 import { getCategoryForDisplay, DEFAULT_CATEGORIES } from '@/lib/categories';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameDay } from 'date-fns';
@@ -242,11 +242,12 @@ function DashboardContent() {
     }
   };
 
-  // Recurring 거래 삭제 - 이 거래만
+  // Recurring 거래 삭제 - 이 거래만 (삭제한 날짜 기록 → 자동 생성 시 다시 만들지 않음)
   const handleDeleteRecurringThis = async () => {
     if (!user || !deletingRecurringTransaction) return;
 
     try {
+      await recordRecurringDeletedDate(user.uid, deletingRecurringTransaction);
       await deleteTransaction(user.uid, deletingRecurringTransaction.id);
       toast.success('Transaction deleted');
       setDeletingRecurringTransaction(null);

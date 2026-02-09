@@ -353,6 +353,39 @@ export async function getCategoryTotals(
 
 // ==================== Recurring 거래 자동 생성 ====================
 
+/** recurring 시리즈 식별 키 (description|amount|category) */
+function getRecurringSeriesKey(t: { description: string; amount: number; category: string }): string {
+  return `${t.description}|${t.amount}|${t.category}`;
+}
+
+/**
+ * 사용자가 "이 거래만 삭제"한 날짜 기록 → generateRecurringTransactions에서 해당 날짜는 다시 생성하지 않음
+ */
+export async function recordRecurringDeletedDate(
+  uid: string,
+  transaction: { description: string; amount: number; category: string; date: string }
+): Promise<void> {
+  const userRef = doc(db, 'users', uid);
+  const snap = await getDoc(userRef);
+  const data = snap.data() || {};
+  const deletions: Record<string, string[]> = { ...(data.recurringDeletions as Record<string, string[]> || {}) };
+  const key = getRecurringSeriesKey(transaction);
+  const arr = [...(deletions[key] || [])];
+  if (!arr.includes(transaction.date)) arr.push(transaction.date);
+  deletions[key] = arr;
+  await updateDoc(userRef, { recurringDeletions: deletions });
+}
+
+/**
+ * 사용자별 "삭제한 recurring 날짜" 맵 조회 (시리즈키 → 날짜 배열)
+ */
+export async function getRecurringDeletedDates(uid: string): Promise<Record<string, string[]>> {
+  const userRef = doc(db, 'users', uid);
+  const snap = await getDoc(userRef);
+  const data = snap.data();
+  return (data?.recurringDeletions as Record<string, string[]>) || {};
+}
+
 /**
  * 다음 발생 날짜 계산
  */
@@ -437,19 +470,25 @@ export async function addRecurringTransaction(
  * Recurring 거래 자동 생성
  */
 export async function generateRecurringTransactions(uid: string): Promise<number> {
-  const allTransactions = await getTransactions(uid);
+  const [allTransactions, deletedDates] = await Promise.all([
+    getTransactions(uid),
+    getRecurringDeletedDates(uid),
+  ]);
   
   // Recurring 거래만 필터링
   const recurringTransactions = allTransactions.filter((t) => t.isRecurring && t.recurringFrequency && t.recurringDay !== undefined);
   
   let generatedCount = 0;
   const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
   const endOfCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
   const endOfCurrentMonthStr = endOfCurrentMonth.toISOString().split('T')[0];
   
-  console.log(`[Recurring] End of current month: ${endOfCurrentMonthStr}, Found ${recurringTransactions.length} recurring transactions`);
+  console.log(`[Recurring] Today: ${todayStr}, End of month: ${endOfCurrentMonthStr}, Found ${recurringTransactions.length} recurring transactions`);
   
   for (const recurring of recurringTransactions) {
+    const seriesKey = getRecurringSeriesKey(recurring);
+    const deletedForSeries = deletedDates[seriesKey] || [];
     console.log(`[Recurring] Processing: ${recurring.description}, Amount: ${recurring.amount}, Frequency: ${recurring.recurringFrequency}`);
     
     // 이 recurring 거래의 가장 최근 발생 찾기
@@ -469,7 +508,17 @@ export async function generateRecurringTransactions(uid: string): Promise<number
     console.log(`[Recurring] Next occurrence: ${nextDate}, End of month: ${endOfCurrentMonthStr}`);
     
     // 현재 달 말일까지 누락된 거래 생성 (3월 1일 로그인 시 3월 20일 항목도 생성)
+    // 현재 달 말일까지 누락된 거래 생성 (오늘·과거는 스킵; 사용자가 삭제한 날짜는 절대 재생성하지 않음)
     while (nextDate <= endOfCurrentMonthStr) {
+      if (nextDate <= todayStr) {
+        nextDate = getNextOccurrence(nextDate, recurring.recurringFrequency!, recurring.recurringDay!);
+        continue;
+      }
+      if (deletedForSeries.includes(nextDate)) {
+        nextDate = getNextOccurrence(nextDate, recurring.recurringFrequency!, recurring.recurringDay!);
+        continue;
+      }
+
       // 이미 해당 날짜에 같은 거래가 있는지 확인
       const exists = allTransactions.some(
         (t) =>
