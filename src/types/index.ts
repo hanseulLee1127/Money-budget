@@ -72,7 +72,7 @@ export interface Insight {
   createdAt: Date;
 }
 
-// 구독 플랜: trial(1회 무료) | basic(3.99/3회) | pro($6.99/10회)
+// 구독 플랜: trial(1회 무료) | basic(1.99/3회) | pro($3.99/10회)
 export type SubscriptionPlan = 'trial' | 'basic' | 'pro' | null;
 
 export interface SubscriptionState {

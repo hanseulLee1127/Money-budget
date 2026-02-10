@@ -26,10 +26,12 @@ const PLANS = [
     href: '/signup',
     planId: null as string | null,
     highlighted: false,
+    originalPrice: null,
   },
   {
     name: 'Basic',
-    price: '$3.99',
+    price: '$1.99',
+    originalPrice: '$3.99',
     period: '/month',
     description: '3 PDF uploads per month',
     features: [
@@ -38,14 +40,17 @@ const PLANS = [
       'Same dashboard & categories',
       'Cancel anytime',
     ],
-    cta: 'Subscribe',
+    cta: 'Subscribe Now',
     href: '/signup?plan=basic',
     planId: 'basic' as string | null,
     highlighted: true,
+    sale: true,
+    discount: '50% OFF',
   },
   {
     name: 'Pro',
-    price: '$6.99',
+    price: '$3.99',
+    originalPrice: '$6.99',
     period: '/month',
     description: '10 PDF uploads per month',
     features: [
@@ -54,10 +59,12 @@ const PLANS = [
       'Best for multiple cards/accounts',
       'Cancel anytime',
     ],
-    cta: 'Subscribe',
+    cta: 'Subscribe Now',
     href: '/signup?plan=pro',
     planId: 'pro' as string | null,
     highlighted: false,
+    sale: true,
+    discount: '43% OFF',
   },
 ];
 
@@ -154,17 +161,30 @@ export default function PricingPage() {
           {PLANS.map((plan) => (
             <div
               key={plan.name}
-              className={`rounded-2xl border-2 p-6 sm:p-8 flex flex-col ${
+              className={`rounded-2xl border-2 p-6 sm:p-8 flex flex-col relative overflow-hidden ${
                 plan.highlighted
-                  ? 'border-blue-600 bg-white shadow-xl scale-105 z-10'
+                  ? 'border-blue-600 bg-gradient-to-br from-blue-50 to-white shadow-xl scale-105 z-10'
                   : 'border-gray-200 bg-white shadow-lg'
               }`}
             >
+              {plan.sale && (
+                <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10">
+                  SALE
+                </div>
+              )}
               <div className="mb-6">
                 <h2 className="text-xl font-bold text-gray-900">{plan.name}</h2>
-                <div className="mt-2 flex items-baseline gap-1">
-                  <span className="text-3xl sm:text-4xl font-bold text-gray-900">{plan.price}</span>
-                  <span className="text-gray-600">{plan.period}</span>
+                <div className="mt-2">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl sm:text-4xl font-bold text-gray-900">{plan.price}</span>
+                    <span className="text-gray-600">{plan.period}</span>
+                    {plan.originalPrice && (
+                      <span className="text-lg text-gray-400 line-through ml-1">{plan.originalPrice}</span>
+                    )}
+                  </div>
+                  {plan.sale && plan.discount && (
+                    <p className="text-xs text-green-600 font-semibold mt-1">{plan.discount} - Limited Time!</p>
+                  )}
                 </div>
                 <p className="mt-2 text-sm text-gray-600">{plan.description}</p>
               </div>
@@ -181,10 +201,12 @@ export default function PricingPage() {
                   <button
                     onClick={() => startCheckout(plan.planId!)}
                     disabled={!!checkoutLoading}
-                    className={`block w-full py-3 px-4 text-center font-semibold rounded-xl transition ${
+                    className={`block w-full py-3 px-4 text-center font-semibold rounded-xl transition shadow-md ${
                       plan.highlighted
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                        : plan.sale
+                          ? 'bg-purple-600 text-white hover:bg-purple-700'
+                          : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                     } disabled:opacity-50`}
                   >
                     {checkoutLoading === plan.planId ? 'Redirecting...' : plan.cta}
@@ -192,10 +214,12 @@ export default function PricingPage() {
                 ) : (
                   <Link
                     href={plan.planId ? `${plan.href}` : plan.href}
-                    className={`block w-full py-3 px-4 text-center font-semibold rounded-xl transition ${
+                    className={`block w-full py-3 px-4 text-center font-semibold rounded-xl transition shadow-md ${
                       plan.highlighted
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                        : plan.sale
+                          ? 'bg-purple-600 text-white hover:bg-purple-700'
+                          : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                     }`}
                   >
                     {plan.cta}

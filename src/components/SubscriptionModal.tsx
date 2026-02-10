@@ -12,8 +12,8 @@ interface SubscriptionModalProps {
 
 const PLAN_LABELS: Record<NonNullable<SubscriptionPlan>, string> = {
   trial: 'Free (trial)',
-  basic: 'Basic — $3.99/month',
-  pro: 'Pro — $6.99/month',
+  basic: 'Basic — $1.99/month',
+  pro: 'Pro — $3.99/month',
 };
 
 export default function SubscriptionModal({ onClose }: SubscriptionModalProps) {
