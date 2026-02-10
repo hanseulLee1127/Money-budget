@@ -117,7 +117,7 @@ export default function PdfUpload({ onUploadComplete, onError }: PdfUploadProps)
         <div className="flex flex-col items-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mb-4"></div>
           <p className="text-lg font-medium text-gray-700">Processing {fileName}...</p>
-          <p className="text-sm text-gray-500 mt-2">Extracting transactions from your statement</p>
+          <p className="text-sm text-gray-500 mt-2">Extracting transactions from your card history</p>
         </div>
       ) : (
         <>
@@ -140,10 +140,10 @@ export default function PdfUpload({ onUploadComplete, onError }: PdfUploadProps)
 
           {/* 텍스트 */}
           <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-2">
-            Upload Bank Statement or Card History
+            Upload Card Transaction History
           </h3>
           <p className="text-sm sm:text-base text-gray-500 mb-4 px-2">
-            Drag and drop your bank statement or credit card / debit card transaction history PDF here, or click to browse
+            Drag and drop your credit card or debit card transaction history PDF here, or click to browse
           </p>
 
           {/* 버튼 */}
