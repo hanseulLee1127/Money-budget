@@ -76,7 +76,7 @@ export default function HomePage() {
             Upload once a month and see exactly where your money went. Look back at last year anytime.
           </p>
           <p className="text-sm text-gray-500 mb-8 max-w-xl mx-auto">
-            Upload your transaction history in CSV or PDF. AI categorizes everything. No bank linking, no daily logging.
+            Upload your card statement or card transaction history in PDF or CSV. AI categorizes everything. No bank linking, no daily logging.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -100,7 +100,7 @@ export default function HomePage() {
             See where your money went
           </h2>
           <p className="text-sm sm:text-base text-gray-600 text-center mb-6 sm:mb-8 max-w-xl mx-auto px-2">
-            Upload your transaction history in CSV or PDF. AI sorts everything by category so you can see where to save.
+            Upload your card statement or card transaction history in PDF or CSV. AI sorts everything by category so you can see where to save.
           </p>
           <div className="rounded-2xl overflow-hidden shadow-xl border border-gray-200 bg-black">
             <video
