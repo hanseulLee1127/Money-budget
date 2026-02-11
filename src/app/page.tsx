@@ -172,10 +172,10 @@ export default function HomePage() {
         <section className="mt-16 sm:mt-24 max-w-3xl mx-auto px-4">
           <div className="bg-white/80 backdrop-blur rounded-2xl border border-gray-200 shadow-lg p-6 sm:p-8">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 text-center mb-3">
-              Why PDF? Safe by design
+              Why file upload? Safe by design
             </h2>
             <p className="text-gray-600 text-center text-sm sm:text-base leading-relaxed">
-              Card transaction history has far less personal info than people think. That’s why we built around PDF upload. No bank linking, and you stay in control. Before any PDF is sent to AI, we strip out account numbers, routing numbers, names, and addresses. Only transaction lines (merchant, date, amount) are used for categorization, so your data stays minimal and safe.
+              Card transaction history has far less personal info than people think. That's why we built around file upload — PDF statements or CSV exports. No bank linking, and you stay in control. Before any file is sent to AI, we strip out account numbers, routing numbers, names, and addresses. Only transaction lines (merchant, date, amount) are used for categorization, so your data stays minimal and safe.
             </p>
           </div>
         </section>
@@ -206,10 +206,10 @@ export default function HomePage() {
               </svg>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-3">
-              Upload PDF, once a month
+              Upload once a month
             </h3>
             <p className="text-gray-600">
-              Credit card transaction history or bank statement. Just upload the PDF. 
+              Credit card transaction history or bank statement. Upload a PDF or CSV.
               AI extracts and categorizes everything. No daily logging.
             </p>
           </div>

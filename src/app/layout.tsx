@@ -13,7 +13,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL("https://money-budget.com"),
   title: "Money Budget - No Bank Links, One Upload Per Month",
-  description: "Upload credit card or bank statement PDFs. AI categorizes your spending. No daily logging, no personal info at risk.",
+  description: "Upload credit card or bank statement PDFs and CSVs. AI categorizes your spending. No daily logging, no personal info at risk.",
   alternates: {
     canonical: "/",
   },

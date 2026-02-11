@@ -57,11 +57,11 @@ export default function UploadPage() {
   }, [user]);
 
   const handleUploadComplete = async (text: string) => {
-    toast.success('PDF extracted successfully!');
-    
+    toast.success('File extracted successfully!');
+
     // AI가 거래 추출 + 카테고리 분류
     setStep('categorizing');
-    
+
     try {
       const response = await fetch('/api/categorize', {
         method: 'POST',
@@ -81,9 +81,9 @@ export default function UploadPage() {
 
       // AI가 추출하고 분류한 거래 내역
       const categorizedTransactions: CategorizedTransaction[] = result.data;
-      
+
       if (categorizedTransactions.length === 0) {
-        toast.error('No transactions found in the PDF');
+        toast.error('No transactions found in the file');
         setStep('upload');
         return;
       }
@@ -108,13 +108,13 @@ export default function UploadPage() {
 
       setParsedTransactions(categorizedTransactions);
       sessionStorage.setItem('categorizedTransactions', JSON.stringify(categorizedTransactions));
-      
+
       toast.success(`Found and categorized ${categorizedTransactions.length} transactions!`);
-      
+
       router.push('/review');
-      
+
     } catch {
-      toast.error('Failed to process PDF. Please try again.');
+      toast.error('Failed to process file. Please try again.');
       setStep('upload');
     }
   };
@@ -130,31 +130,31 @@ export default function UploadPage() {
 
   if (authLoading || !user || subscriptionLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="animate-spin rounded-full h-10 w-10 border-2 border-slate-200 border-t-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* 네비게이션 */}
-      <nav className="bg-white border-b border-gray-200">
+      <nav className="bg-white/80 backdrop-blur-md border-b border-slate-200/60">
         <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-3">
-            <Link href="/dashboard" className="text-xl sm:text-3xl font-bold text-blue-600 truncate min-w-0">
+            <Link href="/dashboard" className="text-xl sm:text-2xl font-bold text-slate-900 truncate min-w-0 tracking-tight">
               Money Budget
             </Link>
-            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <Link
                 href="/dashboard"
-                className="px-3 py-2 text-sm sm:text-base text-gray-600 hover:text-gray-800 transition"
+                className="px-3 py-2 text-sm sm:text-base text-slate-500 hover:text-slate-700 transition"
               >
                 Dashboard
               </Link>
               <button
                 onClick={handleSignOut}
-                className="px-3 py-2 sm:px-4 text-sm sm:text-base text-gray-600 hover:text-gray-800 transition whitespace-nowrap"
+                className="px-3 py-2 sm:px-4 text-sm sm:text-base text-slate-500 hover:text-slate-700 transition whitespace-nowrap"
               >
                 Sign Out
               </button>
@@ -168,11 +168,11 @@ export default function UploadPage() {
         <div className="max-w-2xl mx-auto">
           {/* 헤더 */}
           <div className="text-center mb-8 sm:mb-10">
-            <h1 className="text-xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4 px-1">
-              Upload Card Transaction History
+            <h1 className="text-xl sm:text-3xl font-bold text-slate-900 mb-3 sm:mb-4 px-1 tracking-tight">
+              Upload Transaction History
             </h1>
-            <p className="text-sm sm:text-base text-gray-600 px-1">
-              Upload your credit card or debit card transaction history PDF and we&apos;ll automatically extract and categorize your transactions.
+            <p className="text-sm sm:text-base text-slate-500 px-1">
+              Upload your bank statement PDF or transaction history CSV and we&apos;ll automatically extract and categorize your transactions.
             </p>
           </div>
 
@@ -181,56 +181,56 @@ export default function UploadPage() {
             <div className="flex items-center">
               {/* 단계 1: 업로드 */}
               <div className="flex items-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  step === 'upload' ? 'bg-blue-600 text-white' : 'bg-green-500 text-white'
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-medium ${
+                  step === 'upload' ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'
                 }`}>
                   {step === 'upload' ? '1' : '✓'}
                 </div>
-                <span className="ml-2 text-sm font-medium text-gray-700">Upload</span>
+                <span className="ml-2 text-sm font-medium text-slate-600">Upload</span>
               </div>
 
               {/* 연결선 */}
-              <div className={`w-16 h-1 mx-4 ${
-                step !== 'upload' ? 'bg-blue-600' : 'bg-gray-200'
+              <div className={`w-16 h-0.5 mx-4 ${
+                step !== 'upload' ? 'bg-blue-600' : 'bg-slate-200'
               }`}></div>
 
               {/* 단계 2: 카테고리 분류 */}
               <div className="flex items-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  step === 'categorizing' ? 'bg-blue-600 text-white' : 
-                  step === 'upload' ? 'bg-gray-200 text-gray-500' : 'bg-green-500 text-white'
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-medium ${
+                  step === 'categorizing' ? 'bg-blue-600 text-white' :
+                  step === 'upload' ? 'bg-slate-200 text-slate-400' : 'bg-blue-600 text-white'
                 }`}>
                   2
                 </div>
-                <span className="ml-2 text-sm font-medium text-gray-700">Categorize</span>
+                <span className="ml-2 text-sm font-medium text-slate-600">Categorize</span>
               </div>
 
               {/* 연결선 */}
-              <div className="w-16 h-1 mx-4 bg-gray-200"></div>
+              <div className="w-16 h-0.5 mx-4 bg-slate-200"></div>
 
               {/* 단계 3: 확인 */}
               <div className="flex items-center">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-200 text-gray-500">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-200 text-slate-400 font-medium">
                   3
                 </div>
-                <span className="ml-2 text-sm font-medium text-gray-700">Review</span>
+                <span className="ml-2 text-sm font-medium text-slate-600">Review</span>
               </div>
             </div>
           </div>
 
           {/* 업로드 불가 시 */}
           {step === 'upload' && subscription && !subscription.canUpload && (
-            <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
+            <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100">
               {(subscription.plan === 'pro' || subscription.limit === 10) ? (
                 <>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">You&apos;ve used all 10 uploads this period</h3>
-                  <p className="text-gray-600 mb-6">
+                  <h3 className="text-xl font-semibold text-slate-900 mb-2">You&apos;ve used all 10 uploads this period</h3>
+                  <p className="text-slate-500 mb-6">
                     Please wait for next month. Your upload limit will reset at the start of your billing cycle.
                   </p>
                   <div className="text-center">
                     <button
                       onClick={() => router.push('/dashboard')}
-                      className="px-6 py-2 text-gray-600 hover:text-gray-900 transition"
+                      className="px-6 py-2 text-slate-600 hover:text-slate-900 transition"
                     >
                       Back to Dashboard
                     </button>
@@ -238,17 +238,17 @@ export default function UploadPage() {
                 </>
               ) : subscription.plan === 'basic' ? (
                 <>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">You&apos;ve used all 3 uploads on your Basic plan</h3>
-                  <p className="text-gray-600 mb-6">
-                    Upgrade to Pro for 10 PDF uploads per month and upload more transaction history this period.
+                  <h3 className="text-xl font-semibold text-slate-900 mb-2">You&apos;ve used all 3 uploads on your Basic plan</h3>
+                  <p className="text-slate-500 mb-6">
+                    Upgrade to Pro for 10 uploads per month and upload more transaction history this period.
                   </p>
                   <UpgradePlans onClose={() => router.push('/dashboard')} upgradeFromPlan="basic" />
                 </>
               ) : (
                 <>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">PDF upload limit reached</h3>
-                  <p className="text-gray-600 mb-6">
-                    Subscribe to upload more transaction history PDFs. Free trial: 1 upload. Plans: $1.99/month (3 uploads) or $3.99/month (10 uploads) - Limited time sale!
+                  <h3 className="text-xl font-semibold text-slate-900 mb-2">Upload limit reached</h3>
+                  <p className="text-slate-500 mb-6">
+                    Subscribe to upload more transaction files. Free trial: 1 upload. Plans: $1.99/month (3 uploads) or $3.99/month (10 uploads) - Limited time sale!
                   </p>
                   <UpgradePlans onClose={() => router.push('/dashboard')} />
                 </>
@@ -260,16 +260,16 @@ export default function UploadPage() {
           {step === 'upload' && subscription?.canUpload && (
             <div>
               {subscription.remaining < subscription.limit && (
-                <p className="text-sm text-gray-600 mb-4 text-center">
+                <p className="text-sm text-slate-500 mb-4 text-center">
                   Uploads left this period: {subscription.remaining} of {subscription.limit}
                 </p>
               )}
               <PdfUpload onUploadComplete={handleUploadComplete} onError={handleError} />
-              
+
               <div className="mt-6 text-center">
                 <button
                   onClick={() => router.push('/dashboard')}
-                  className="px-6 py-2 text-gray-600 hover:text-gray-800 transition"
+                  className="px-6 py-2 text-slate-500 hover:text-slate-700 transition"
                 >
                   Cancel and go back to Dashboard
                 </button>
@@ -279,30 +279,30 @@ export default function UploadPage() {
 
           {/* 카테고리 분류 중 */}
           {step === 'categorizing' && (
-            <div className="bg-white rounded-xl p-12 text-center shadow-sm border border-gray-100">
-              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-600 mx-auto mb-6"></div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+            <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-slate-100">
+              <div className="animate-spin rounded-full h-14 w-14 border-2 border-slate-200 border-t-blue-600 mx-auto mb-6"></div>
+              <h3 className="text-xl font-semibold text-slate-700 mb-2">
                 AI is Extracting & Categorizing
               </h3>
-              <p className="text-gray-500">
-                Analyzing your credit card or debit card transaction history...
+              <p className="text-slate-500">
+                Analyzing your transaction history...
               </p>
-              <p className="text-sm text-gray-400 mt-4">
+              <p className="text-sm text-slate-400 mt-4">
                 This may take 10 seconds up to a few minutes.
               </p>
             </div>
           )}
 
           {/* 보안 안내 */}
-          <div className="mt-8 p-4 bg-blue-50 rounded-lg">
+          <div className="mt-8 p-4 bg-blue-50/60 rounded-xl border border-blue-100">
             <div className="flex items-start">
-              <svg className="w-5 h-5 text-blue-600 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
               <div>
-                <h4 className="font-medium text-blue-800">Your Data is Secure</h4>
-                <p className="text-sm text-blue-700 mt-1">
-                  Personal information (account numbers, addresses, phone numbers) is automatically removed before processing. 
+                <h4 className="font-medium text-blue-800 text-sm">Your Data is Secure</h4>
+                <p className="text-sm text-blue-600 mt-1">
+                  Personal information (account numbers, addresses, phone numbers) is automatically removed before processing.
                   Your transaction data is encrypted before storage.
                 </p>
               </div>

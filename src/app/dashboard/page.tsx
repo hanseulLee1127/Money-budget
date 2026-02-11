@@ -531,7 +531,7 @@ function DashboardContent() {
                 href="/upload"
                 className="px-3 py-2 sm:px-4 text-sm sm:text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition whitespace-nowrap font-medium"
               >
-                Upload PDF
+                Upload
               </Link>
               <button
                 onClick={() => setShowSubscriptionModal(true)}

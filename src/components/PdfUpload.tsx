@@ -14,9 +14,11 @@ export default function PdfUpload({ onUploadComplete, onError }: PdfUploadProps)
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File) => {
-    // PDF 타입 확인
-    if (!file.type.includes('pdf')) {
-      onError('Please upload a valid PDF file');
+    const isPdf = file.type.includes('pdf') || file.name.toLowerCase().endsWith('.pdf');
+    const isCsv = file.type === 'text/csv' || file.name.toLowerCase().endsWith('.csv');
+
+    if (!isPdf && !isCsv) {
+      onError('Please upload a PDF or CSV file');
       return;
     }
 
@@ -30,23 +32,35 @@ export default function PdfUpload({ onUploadComplete, onError }: PdfUploadProps)
     setIsUploading(true);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      if (isCsv) {
+        // CSV: 클라이언트에서 직접 텍스트로 읽어서 AI에 전달
+        const text = await file.text();
+        if (!text || text.trim().length === 0) {
+          onError('CSV file is empty');
+          setFileName(null);
+          return;
+        }
+        onUploadComplete(text);
+      } else {
+        // PDF: 서버에서 파싱
+        const formData = new FormData();
+        formData.append('file', file);
 
-      const response = await fetch('/api/parse-pdf', {
-        method: 'POST',
-        body: formData,
-      });
+        const response = await fetch('/api/parse-pdf', {
+          method: 'POST',
+          body: formData,
+        });
 
-      const result = await response.json();
+        const result = await response.json();
 
-      if (!result.success) {
-        onError(result.error || 'Failed to extract PDF text');
-        setFileName(null);
-        return;
+        if (!result.success) {
+          onError(result.error || 'Failed to extract PDF text');
+          setFileName(null);
+          return;
+        }
+
+        onUploadComplete(result.data.text);
       }
-
-      onUploadComplete(result.data.text);
     } catch {
       onError('Failed to upload file. Please try again.');
       setFileName(null);
@@ -96,11 +110,11 @@ export default function PdfUpload({ onUploadComplete, onError }: PdfUploadProps)
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       className={`
-        relative border-2 border-dashed rounded-xl p-12 text-center cursor-pointer
+        relative border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer
         transition-all duration-200
-        ${isDragging 
-          ? 'border-blue-500 bg-blue-50' 
-          : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+        ${isDragging
+          ? 'border-blue-500 bg-blue-50'
+          : 'border-slate-200 hover:border-blue-400 hover:bg-slate-50'
         }
         ${isUploading ? 'pointer-events-none opacity-70' : ''}
       `}
@@ -108,21 +122,21 @@ export default function PdfUpload({ onUploadComplete, onError }: PdfUploadProps)
       <input
         ref={fileInputRef}
         type="file"
-        accept=".pdf"
+        accept=".pdf,.csv"
         onChange={handleFileSelect}
         className="hidden"
       />
 
       {isUploading ? (
         <div className="flex flex-col items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mb-4"></div>
-          <p className="text-lg font-medium text-gray-700">Processing {fileName}...</p>
-          <p className="text-sm text-gray-500 mt-2">Extracting transactions from your card history</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-2 border-slate-200 border-t-blue-600 mb-4"></div>
+          <p className="text-lg font-medium text-slate-700">Processing {fileName}...</p>
+          <p className="text-sm text-slate-500 mt-2">Extracting transactions from your file</p>
         </div>
       ) : (
         <>
           {/* 아이콘 */}
-          <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-blue-50 rounded-2xl flex items-center justify-center">
             <svg
               className="w-8 h-8 text-blue-600"
               fill="none"
@@ -139,24 +153,24 @@ export default function PdfUpload({ onUploadComplete, onError }: PdfUploadProps)
           </div>
 
           {/* 텍스트 */}
-          <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-2">
-            Upload Card Transaction History
+          <h3 className="text-base sm:text-lg font-semibold text-slate-700 mb-2">
+            Upload Transaction History
           </h3>
-          <p className="text-sm sm:text-base text-gray-500 mb-4 px-2">
-            Drag and drop your credit card or debit card transaction history PDF here, or click to browse
+          <p className="text-sm sm:text-base text-slate-400 mb-4 px-2">
+            Drag and drop your statement PDF or transaction history CSV here, or click to browse
           </p>
 
           {/* 버튼 */}
           <button
             type="button"
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            className="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium"
           >
-            Select PDF File
+            Select File
           </button>
 
           {/* 힌트 */}
-          <p className="text-xs text-gray-400 mt-4">
-            Supported format: PDF (max 10MB)
+          <p className="text-xs text-slate-400 mt-4">
+            Supported formats: PDF, CSV (max 10MB)
           </p>
         </>
       )}
