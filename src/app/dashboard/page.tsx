@@ -159,6 +159,7 @@ function DashboardContent() {
     isRecurring?: boolean;
     recurringFrequency?: 'monthly' | 'bi-weekly' | 'weekly';
     recurringDay?: number;
+    recurringEndDate?: string;
   }) => {
     if (!user) return;
 
@@ -171,6 +172,7 @@ function DashboardContent() {
           category: newTransaction.category,
           recurringFrequency: newTransaction.recurringFrequency,
           recurringDay: newTransaction.recurringDay,
+          recurringEndDate: newTransaction.recurringEndDate,
         });
         toast.success(
           ids.length === 1
@@ -210,6 +212,7 @@ function DashboardContent() {
         isRecurring: updatedAny.isRecurring,
         recurringFrequency: updatedAny.recurringFrequency,
         recurringDay: updatedAny.recurringDay,
+        recurringEndDate: updatedAny.recurringEndDate,
       });
       toast.success('Transaction updated');
       setEditingTransaction(null);

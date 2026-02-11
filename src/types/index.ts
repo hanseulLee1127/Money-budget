@@ -12,6 +12,7 @@ export interface Transaction {
   isRecurring?: boolean;
   recurringFrequency?: 'monthly' | 'bi-weekly' | 'weekly';
   recurringDay?: number; // 반복할 날짜 (1-31) 또는 요일 (0-6)
+  recurringEndDate?: string; // 반복 종료 날짜 (YYYY-MM-DD), 없으면 무기한
 }
 
 // PDF에서 파싱된 거래 내역 (아직 카테고리 분류 전)

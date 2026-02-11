@@ -189,6 +189,7 @@ export async function getTransactions(uid: string): Promise<Transaction[]> {
       isRecurring: data.isRecurring,
       recurringFrequency: data.recurringFrequency,
       recurringDay: data.recurringDay,
+      recurringEndDate: data.recurringEndDate,
     };
   }) as Transaction[];
 }
@@ -225,6 +226,7 @@ export async function getTransactionsByDateRange(
       isRecurring: data.isRecurring,
       recurringFrequency: data.recurringFrequency,
       recurringDay: data.recurringDay,
+      recurringEndDate: data.recurringEndDate,
     };
   }) as Transaction[];
 }
@@ -267,7 +269,10 @@ export async function updateTransaction(
   if (updates.recurringDay !== undefined) {
     encryptedUpdates.recurringDay = updates.recurringDay;
   }
-  
+  if (updates.recurringEndDate !== undefined) {
+    encryptedUpdates.recurringEndDate = updates.recurringEndDate;
+  }
+
   await updateDoc(transactionRef, encryptedUpdates);
 }
 
@@ -420,11 +425,16 @@ function getNextOccurrence(
 function getRecurringOccurrenceDatesFromStartToCurrentMonth(
   startDate: string,
   frequency: 'monthly' | 'bi-weekly' | 'weekly',
-  recurringDay: number
+  recurringDay: number,
+  recurringEndDate?: string
 ): string[] {
   const today = new Date();
   const endOfCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  const endStr = endOfCurrentMonth.toISOString().split('T')[0];
+  let endStr = endOfCurrentMonth.toISOString().split('T')[0];
+  // recurringEndDate가 있으면 더 이른 쪽을 경계로 사용
+  if (recurringEndDate && recurringEndDate < endStr) {
+    endStr = recurringEndDate;
+  }
   const dates: string[] = [];
   let current = startDate;
   while (current <= endStr) {
@@ -446,12 +456,14 @@ export async function addRecurringTransaction(
     category: string;
     recurringFrequency: 'monthly' | 'bi-weekly' | 'weekly';
     recurringDay: number;
+    recurringEndDate?: string;
   }
 ): Promise<string[]> {
   const dates = getRecurringOccurrenceDatesFromStartToCurrentMonth(
     data.date,
     data.recurringFrequency,
-    data.recurringDay
+    data.recurringDay,
+    data.recurringEndDate
   );
   const transactions = dates.map((date) => ({
     date,
@@ -462,6 +474,7 @@ export async function addRecurringTransaction(
     isRecurring: true,
     recurringFrequency: data.recurringFrequency,
     recurringDay: data.recurringDay,
+    ...(data.recurringEndDate && { recurringEndDate: data.recurringEndDate }),
   }));
   return addTransactions(uid, transactions);
 }
@@ -507,9 +520,15 @@ export async function generateRecurringTransactions(uid: string): Promise<number
     let nextDate = getNextOccurrence(lastDate, recurring.recurringFrequency!, recurring.recurringDay!);
     console.log(`[Recurring] Next occurrence: ${nextDate}, End of month: ${endOfCurrentMonthStr}`);
     
-    // 현재 달 말일까지 누락된 거래 생성 (3월 1일 로그인 시 3월 20일 항목도 생성)
-    // 현재 달 말일까지 누락된 거래 생성 (오늘·과거는 스킵; 사용자가 삭제한 날짜는 절대 재생성하지 않음)
-    while (nextDate <= endOfCurrentMonthStr) {
+    // recurringEndDate가 있으면 그 날짜를 경계로 사용
+    const seriesEndDate = recurring.recurringEndDate;
+    let boundaryStr = endOfCurrentMonthStr;
+    if (seriesEndDate && seriesEndDate < boundaryStr) {
+      boundaryStr = seriesEndDate;
+    }
+
+    // 현재 달 말일(또는 종료일)까지 누락된 거래 생성 (오늘·과거는 스킵; 사용자가 삭제한 날짜는 절대 재생성하지 않음)
+    while (nextDate <= boundaryStr) {
       if (nextDate <= todayStr) {
         nextDate = getNextOccurrence(nextDate, recurring.recurringFrequency!, recurring.recurringDay!);
         continue;
@@ -527,7 +546,7 @@ export async function generateRecurringTransactions(uid: string): Promise<number
           Math.abs(t.amount - recurring.amount) < 0.01 &&
           t.category === recurring.category
       );
-      
+
       if (!exists) {
         // 새 거래 생성
         console.log(`[Recurring] Creating new transaction for ${nextDate}`);
@@ -540,12 +559,13 @@ export async function generateRecurringTransactions(uid: string): Promise<number
           isRecurring: true,
           recurringFrequency: recurring.recurringFrequency,
           recurringDay: recurring.recurringDay,
+          ...(seriesEndDate && { recurringEndDate: seriesEndDate }),
         });
         generatedCount++;
       } else {
         console.log(`[Recurring] Transaction already exists for ${nextDate}`);
       }
-      
+
       // 다음 발생 날짜 계산
       nextDate = getNextOccurrence(nextDate, recurring.recurringFrequency!, recurring.recurringDay!);
     }

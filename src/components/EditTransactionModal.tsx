@@ -27,6 +27,8 @@ export default function EditTransactionModal({
   const [recurringFrequency, setRecurringFrequency] = useState<'monthly' | 'bi-weekly' | 'weekly'>(
     transactionAny.recurringFrequency || 'monthly'
   );
+  const [hasEndDate, setHasEndDate] = useState(!!transactionAny.recurringEndDate);
+  const [recurringEndDate, setRecurringEndDate] = useState(transactionAny.recurringEndDate || '');
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -54,10 +56,18 @@ export default function EditTransactionModal({
       } else {
         updatedTransaction.recurringDay = new Date(date).getDate();
       }
+
+      // 종료 날짜 (선택사항)
+      if (hasEndDate && recurringEndDate) {
+        updatedTransaction.recurringEndDate = recurringEndDate;
+      } else {
+        updatedTransaction.recurringEndDate = undefined;
+      }
     } else {
       // Recurring 해제 시 관련 필드 제거
       updatedTransaction.recurringFrequency = undefined;
       updatedTransaction.recurringDay = undefined;
+      updatedTransaction.recurringEndDate = undefined;
     }
 
     onSave(updatedTransaction);
@@ -181,19 +191,51 @@ export default function EditTransactionModal({
             </div>
 
             {isRecurring && (
-              <div className="ml-7">
-                <label className="block text-xs font-medium text-slate-500 mb-1">
-                  Frequency
-                </label>
-                <select
-                  value={recurringFrequency}
-                  onChange={(e) => setRecurringFrequency(e.target.value as 'monthly' | 'bi-weekly' | 'weekly')}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm text-slate-800 bg-white"
-                >
-                  <option value="monthly">Monthly</option>
-                  <option value="bi-weekly">Bi-weekly</option>
-                  <option value="weekly">Weekly</option>
-                </select>
+              <div className="ml-7 space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1">
+                    Frequency
+                  </label>
+                  <select
+                    value={recurringFrequency}
+                    onChange={(e) => setRecurringFrequency(e.target.value as 'monthly' | 'bi-weekly' | 'weekly')}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm text-slate-800 bg-white"
+                  >
+                    <option value="monthly">Monthly</option>
+                    <option value="bi-weekly">Bi-weekly</option>
+                    <option value="weekly">Weekly</option>
+                  </select>
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <input
+                      type="checkbox"
+                      id="edit-has-end-date"
+                      checked={hasEndDate}
+                      onChange={(e) => {
+                        setHasEndDate(e.target.checked);
+                        if (!e.target.checked) setRecurringEndDate('');
+                      }}
+                      className="w-3.5 h-3.5 text-blue-600 border-slate-300 rounded focus:ring-2 focus:ring-blue-500"
+                    />
+                    <label htmlFor="edit-has-end-date" className="text-xs font-medium text-slate-500 cursor-pointer">
+                      Set end date
+                    </label>
+                  </div>
+                  {hasEndDate && (
+                    <input
+                      type="date"
+                      value={recurringEndDate}
+                      min={date}
+                      onChange={(e) => setRecurringEndDate(e.target.value)}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm text-slate-800 bg-white"
+                    />
+                  )}
+                  {!hasEndDate && (
+                    <p className="text-xs text-slate-400">No end date - repeats indefinitely.</p>
+                  )}
+                </div>
               </div>
             )}
           </div>
