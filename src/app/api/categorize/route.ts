@@ -46,10 +46,10 @@ export async function POST(request: NextRequest) {
 
     // OpenAI에 거래 추출 + 카테고리 분류 요청
     const prompt = `# Role
-You are an expert financial transaction parser and categorizer with deep knowledge of banking terminology and transaction patterns.
+You are an expert financial transaction parser and categorizer with deep knowledge of banking terminology, transaction patterns, and CSV/PDF statement formats.
 
 # Task
-Parse the provided bank/credit card statement and extract ALL transactions into a structured JSON format.
+Parse the provided bank/credit card statement (PDF text or CSV) and extract ALL real transactions into a structured JSON format.
 
 # Input Context
 - Available categories: ${categories.join(', ')}
@@ -74,35 +74,44 @@ Return ONLY a valid JSON array with this exact structure:
 
 # Processing Rules
 
-## 1. Date Parsing
+## 1. CSV Format Detection
+⚠️ CRITICAL: If the input is CSV data, pay close attention to the column headers to determine which column is the amount and how debits vs credits are represented.
+
+Common CSV patterns:
+- **Separate Debit/Credit columns**: "Date,Description,Debit,Credit" → Debit column = expenses (make NEGATIVE), Credit column = income (make POSITIVE)
+- **Single Amount column with type**: "Date,Description,Amount,Type" → if Type="debit" make negative, if Type="credit" make positive
+- **Single Amount column (all positive)**: Most bank CSVs show ALL amounts as positive numbers. In this case, almost every transaction is a PURCHASE/EXPENSE and should be NEGATIVE. Only classify as positive income if description clearly matches income patterns (payroll, direct deposit, refund, Zelle received, etc.)
+- **Single Amount column with sign**: If amounts already have negative signs, respect them
+- **"Balance" column**: IGNORE any balance column — it's the running account balance, NOT a transaction amount
+
+**DEFAULT ASSUMPTION**: If the CSV has a single amount column with all positive numbers, treat the VAST MAJORITY as expenses (NEGATIVE amounts). Only mark as positive if the description clearly indicates income (salary, direct deposit, refund, Zelle From, etc.). Regular purchases at stores, restaurants, gas stations, subscriptions — ALL of these should be NEGATIVE.
+
+## 2. Date Parsing
 - Convert all dates to YYYY-MM-DD format
 - **Year inference**: When statement spans year boundary (e.g., Dec-Jan), assign years logically:
   - If reference is 2026-01: "12/15" → 2025-12-15, "01/10" → 2026-01-10
   - Dates should be chronologically sequential
 
-## 2. Amount Sign Convention
+## 3. Amount Sign Convention
 | Sign | Transaction Type | Examples |
 |------|-----------------|----------|
-| **POSITIVE (+)** | Income/Credits | Salary, direct deposits, refunds, Zelle received |
-| **NEGATIVE (-)** | Expenses/Debits | Purchases, bills, fees, subscriptions |
+| **NEGATIVE (-)** | Expenses/Debits/Purchases | Store purchases, bills, fees, subscriptions, restaurants, gas |
+| **POSITIVE (+)** | Income/Credits ONLY | Salary, direct deposits, refunds, Zelle received |
 
-## 3. Income Detection Patterns (POSITIVE amounts)
-Classify as **Income** when ANY of these patterns match:
-- Direct deposits: "EDI Pymnts", "Direct Dep", "Payroll"
-- Employer payments: "[Company] Pymt", descriptions ending in "Com", "Inc", "Corp", "LLC" + payment context
+⚠️ **IMPORTANT**: The vast majority of transactions on a bank or credit card statement are EXPENSES. When in doubt, make the amount NEGATIVE. Only use positive for clear income/credit patterns.
+
+## 4. Income Detection Patterns (POSITIVE amounts)
+Classify as **Income** (positive) ONLY when description clearly matches:
+- Direct deposits: "EDI Pymnts", "Direct Dep", "Payroll", "ACH Credit"
+- Employer payments: "[Company] Pymt" with payment context
 - P2P received: "Zelle From [name]", "Venmo From", "PayPal From"
-- Refunds: "Refund", "Credit", "Reimbursement"
+- Refunds: "Refund", "Return Credit", "Reimbursement"
 - Government: "IRS", "Tax Refund", "Stimulus"
 
-**Examples:**
-| Description | Amount | Category |
-|-------------|--------|----------|
-| "Brigham Young Un EDI Pymnts" | +2500.00 | Income |
-| "Deseret Book Com Deseret MG Pymt" | +1800.00 | Income |
-| "Zelle From John Smith" | +150.00 | Income |
+**Everything else is an EXPENSE (negative amount).**
 
-## 4. Expense Classification (NEGATIVE amounts)
-Always choose the MOST SPECIFIC category. Here is the full classification guide:
+## 5. Expense Classification (NEGATIVE amounts)
+Always choose the MOST SPECIFIC category:
 
 ### Food & Dining
 - **Groceries**: Supermarkets, warehouse clubs (Costco, Sam's Club, BJ's), grocery stores (Walmart Grocery, Kroger, Safeway, Albertsons, Publix, Whole Foods, Trader Joe's, H-E-B, Giant, Food Lion, Aldi, Lidl)
@@ -146,19 +155,19 @@ Always choose the MOST SPECIFIC category. Here is the full classification guide:
 ### Other
 - **Other**: Anything that doesn't clearly fit the above categories
 
-## 5. EXCLUSION Rules (Do NOT include)
-⚠️ CRITICAL: Exclude ALL transactions matching these patterns:
-- **Internal transfers**: "Transfer to/from", "Online Xfer", "Online Transfer", account numbers (xxxxxx)
+## 6. EXCLUSION Rules (Do NOT include)
+⚠️ CRITICAL: Exclude ALL transactions matching these patterns. Do NOT output them:
+- **Internal transfers**: "Transfer to/from", "Online Xfer", "Online Transfer", account numbers (xxxxxx), "Xfer", "ACH Transfer"
 - **Credit card payments**:
   - "Credit Card Payment", "CC Payment", "Credit Crd Epay"
-  - "Thank You Payment", "Payment Thank You", "PAYMENT - THANK YOU"
-  - "Payment - Thank You" (any case variation)
-  - Description contains both "PAYMENT" AND "THANK YOU" → EXCLUDE
+  - ANY description containing "THANK YOU" — this is a credit card payment, NOT a real transaction
+  - ANY description containing "PAYMENT" when it refers to paying a credit card bill
+  - "Payment Thank You", "PAYMENT - THANK YOU", "Thank You - Payment", "Payment - Thank"
+  - "Autopay", "Auto Pay" (when it's paying the credit card itself)
 - **Balance movements**: "Balance Transfer", "Account Transfer"
+- **Interest charges / fees that are internal**: "Interest Charge", "Late Fee" (optional — include only if the user would consider them relevant expenses)
 
-**Important**: If description contains "PAYMENT" + "THANK YOU" in ANY order or format, DO NOT INCLUDE IT.
-
-## 6. Edge Cases
+## 7. Edge Cases
 - **Pending transactions**: Include with best available date
 - **Foreign currency**: Convert description but use USD amount shown
 - **Partial/unclear data**: Include with "Other" category, preserve original description
@@ -166,10 +175,11 @@ Always choose the MOST SPECIFIC category. Here is the full classification guide:
 
 # Quality Checklist
 Before responding, verify:
-✓ All visible transactions extracted (none missed)
-✓ Excluded transactions are NOT in output
+✓ All real purchase/expense transactions extracted (none missed)
+✓ Excluded transactions (payments, transfers, "thank you") are NOT in output
 ✓ Dates are valid YYYY-MM-DD format
-✓ Amounts have correct sign (+/-)
+✓ Store purchases, restaurants, bills, subscriptions → NEGATIVE amounts
+✓ Only clear income/deposits/refunds → POSITIVE amounts
 ✓ Categories match EXACTLY from the provided list (case-sensitive)
 ✓ JSON is valid and parseable
 
@@ -227,20 +237,68 @@ Output ONLY the JSON array. No explanations, no markdown code blocks, no additio
       );
     }
 
-    // 결과 검증
+    // 결과 검증 + 후처리
     const validCategories = new Set(categories.map(c => c.toLowerCase()));
-    const validatedTransactions = transactions.map((t) => {
-      // 카테고리 검증
-      if (!validCategories.has(t.category.toLowerCase())) {
-        t.category = 'Other';
-      }
-      
-      // rawText 추가 (AI 응답에는 없음)
-      return {
-        ...t,
-        rawText: `${t.date} - ${t.description} - $${Math.abs(t.amount)}`,
-      };
-    });
+
+    // 제외 패턴 (서버 사이드 안전장치)
+    const exclusionPatterns = [
+      /thank\s*you/i,
+      /payment\s*-?\s*thank/i,
+      /credit\s*card\s*payment/i,
+      /cc\s*payment/i,
+      /online\s*xfer/i,
+      /online\s*transfer/i,
+      /balance\s*transfer/i,
+      /account\s*transfer/i,
+      /autopay/i,
+      /auto\s*pay/i,
+    ];
+
+    // Income 패턴 (positive로 유지해야 하는 것들)
+    const incomePatterns = [
+      /direct\s*dep/i,
+      /payroll/i,
+      /edi\s*pymnts/i,
+      /ach\s*credit/i,
+      /zelle\s*from/i,
+      /venmo\s*from/i,
+      /paypal\s*from/i,
+      /refund/i,
+      /reimbursement/i,
+      /return\s*credit/i,
+      /tax\s*refund/i,
+      /stimulus/i,
+    ];
+
+    const validatedTransactions = transactions
+      // 1. 제외 패턴 필터
+      .filter((t) => {
+        const desc = (t.description || '').trim();
+        return !exclusionPatterns.some((p) => p.test(desc));
+      })
+      // 2. 검증 + 부호 보정
+      .map((t) => {
+        // 카테고리 검증
+        if (!validCategories.has(t.category.toLowerCase())) {
+          t.category = 'Other';
+        }
+
+        // 부호 보정: Income 카테고리가 아니고 income 패턴에도 안 맞으면 expense → 반드시 음수
+        const desc = (t.description || '').trim();
+        const isIncomeCategory = t.category.toLowerCase() === 'income';
+        const matchesIncomePattern = incomePatterns.some((p) => p.test(desc));
+
+        if (!isIncomeCategory && !matchesIncomePattern && t.amount > 0) {
+          // AI가 양수로 줬지만 income이 아닌 경우 → 음수로 변환
+          t.amount = -Math.abs(t.amount);
+        }
+
+        // rawText 추가 (AI 응답에는 없음)
+        return {
+          ...t,
+          rawText: `${t.date} - ${t.description} - $${Math.abs(t.amount)}`,
+        };
+      });
 
     return NextResponse.json({
       success: true,

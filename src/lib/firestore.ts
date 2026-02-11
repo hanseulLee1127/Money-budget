@@ -422,7 +422,7 @@ function getNextOccurrence(
  * 시작일부터 현재 달 마지막일까지의 recurring 발생일 목록 (시작일·현재 달 포함)
  * 예: 1월 20일 monthly 추가 시 이번 달이 2월이면 → [1월 20일, 2월 20일]
  */
-function getRecurringOccurrenceDatesFromStartToCurrentMonth(
+function getRecurringOccurrenceDates(
   startDate: string,
   frequency: 'monthly' | 'bi-weekly' | 'weekly',
   recurringDay: number,
@@ -430,11 +430,11 @@ function getRecurringOccurrenceDatesFromStartToCurrentMonth(
 ): string[] {
   const today = new Date();
   const endOfCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  let endStr = endOfCurrentMonth.toISOString().split('T')[0];
-  // recurringEndDate가 있으면 더 이른 쪽을 경계로 사용
-  if (recurringEndDate && recurringEndDate < endStr) {
-    endStr = recurringEndDate;
-  }
+  const endOfCurrentMonthStr = endOfCurrentMonth.toISOString().split('T')[0];
+
+  // endDate가 있으면 그 날짜까지 전부 생성, 없으면 현재 달 말일까지만
+  const endStr = recurringEndDate || endOfCurrentMonthStr;
+
   const dates: string[] = [];
   let current = startDate;
   while (current <= endStr) {
@@ -459,7 +459,7 @@ export async function addRecurringTransaction(
     recurringEndDate?: string;
   }
 ): Promise<string[]> {
-  const dates = getRecurringOccurrenceDatesFromStartToCurrentMonth(
+  const dates = getRecurringOccurrenceDates(
     data.date,
     data.recurringFrequency,
     data.recurringDay,
@@ -520,12 +520,9 @@ export async function generateRecurringTransactions(uid: string): Promise<number
     let nextDate = getNextOccurrence(lastDate, recurring.recurringFrequency!, recurring.recurringDay!);
     console.log(`[Recurring] Next occurrence: ${nextDate}, End of month: ${endOfCurrentMonthStr}`);
     
-    // recurringEndDate가 있으면 그 날짜를 경계로 사용
+    // endDate가 있으면 그 날짜까지, 없으면 현재 달 말일까지
     const seriesEndDate = recurring.recurringEndDate;
-    let boundaryStr = endOfCurrentMonthStr;
-    if (seriesEndDate && seriesEndDate < boundaryStr) {
-      boundaryStr = seriesEndDate;
-    }
+    const boundaryStr = seriesEndDate || endOfCurrentMonthStr;
 
     // 현재 달 말일(또는 종료일)까지 누락된 거래 생성 (오늘·과거는 스킵; 사용자가 삭제한 날짜는 절대 재생성하지 않음)
     while (nextDate <= boundaryStr) {
