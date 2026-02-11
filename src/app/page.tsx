@@ -72,18 +72,18 @@ export default function HomePage() {
             <span className="text-blue-600"> You need to know where it went.</span>
           </h1>
           <p className="text-base sm:text-xl text-gray-600 mb-6 max-w-2xl mx-auto px-0">
-            To save, you need to see exactly how much you spent on which categories. 
-            Money Budget helps you understand your spending and shows you where you can cut back.
+            Track your spending and save your transaction history.
+            Upload once a month and see exactly where your money went. Look back at last year anytime.
           </p>
           <p className="text-sm text-gray-500 mb-8 max-w-xl mx-auto">
-            Upload one PDF. AI categorizes everything. No bank linking, no daily logging. Start free.
+            Upload your transaction history in CSV or PDF. AI categorizes everything. No bank linking, no daily logging.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/signup"
               className="px-6 py-3 sm:px-8 sm:py-4 bg-blue-600 text-white text-base sm:text-lg font-semibold rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-xl w-full sm:w-auto text-center"
             >
-              Start Free
+              Get Started
             </Link>
             <Link
               href="/login"
@@ -100,7 +100,7 @@ export default function HomePage() {
             See where your money went
           </h2>
           <p className="text-sm sm:text-base text-gray-600 text-center mb-6 sm:mb-8 max-w-xl mx-auto px-2">
-            Upload your card or statement PDF. AI sorts spending by category. Review, then spot where to save.
+            Upload your transaction history in CSV or PDF. AI sorts everything by category so you can see where to save.
           </p>
           <div className="rounded-2xl overflow-hidden shadow-xl border border-gray-200 bg-black">
             <video
@@ -175,7 +175,7 @@ export default function HomePage() {
               Why file upload? Safe by design
             </h2>
             <p className="text-gray-600 text-center text-sm sm:text-base leading-relaxed">
-              Card transaction history has far less personal info than people think. That's why we built around file upload — PDF statements or CSV exports. No bank linking, and you stay in control. Before any file is sent to AI, we strip out account numbers, routing numbers, names, and addresses. Only transaction lines (merchant, date, amount) are used for categorization, so your data stays minimal and safe.
+              Card transaction history has far less personal info than people think. We built around file upload, CSV exports and PDF statements, so you stay in control. No bank linking needed. Before any file is sent to AI, we strip out account numbers, routing numbers, names, and addresses. Only transaction lines (merchant, date, amount) are used for categorization, so your data stays minimal and safe.
             </p>
           </div>
         </section>

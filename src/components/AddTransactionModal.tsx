@@ -28,7 +28,7 @@ export default function AddTransactionModal({
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [isExpense, setIsExpense] = useState(true);
-  const [category, setCategory] = useState('Other');
+  const [category, setCategory] = useState('Groceries');
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurringFrequency, setRecurringFrequency] = useState<'monthly' | 'bi-weekly' | 'weekly'>('monthly');
   const [hasEndDate, setHasEndDate] = useState(false);
