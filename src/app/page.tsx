@@ -230,6 +230,25 @@ export default function HomePage() {
             </p>
           </div>
         </div>
+
+        {/* 지원 카드사 */}
+        <section className="mt-16 sm:mt-24 max-w-3xl mx-auto px-4">
+          <div className="bg-white/80 backdrop-blur rounded-2xl border border-gray-200 shadow-lg p-6 sm:p-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 text-center mb-3">
+              Works with every major US card company
+            </h2>
+            <p className="text-gray-600 text-center text-sm sm:text-base leading-relaxed mb-5">
+              Almost every US credit card company lets you download your transaction history as CSV or your card statement as PDF. Just log in to your card company website, download the file, and upload it here.
+            </p>
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+              {['Chase', 'Amex', 'Capital One', 'Citi', 'Wells Fargo', 'Discover', 'Bank of America', 'Apple Card', 'US Bank', 'Robinhood'].map((name) => (
+                <span key={name} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs sm:text-sm font-medium rounded-full">
+                  {name}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
 
       {/* 푸터 */}
