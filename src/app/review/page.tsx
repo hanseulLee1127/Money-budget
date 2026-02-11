@@ -193,7 +193,7 @@ export default function ReviewPage() {
               <button
                 onClick={handleConfirmAll}
                 disabled={isSaving || transactions.length === 0}
-                className="px-4 py-2 sm:px-6 text-sm sm:text-base bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                className="px-4 py-2 sm:px-6 text-sm sm:text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
                 {isSaving ? 'Saving...' : 'Confirm All'}
               </button>

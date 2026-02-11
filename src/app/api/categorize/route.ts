@@ -102,20 +102,54 @@ Classify as **Income** when ANY of these patterns match:
 | "Zelle From John Smith" | +150.00 | Income |
 
 ## 4. Expense Classification (NEGATIVE amounts)
-Match to most specific category available:
-- **Food and Grocery** (use this for groceries, supermarkets, warehouse clubs, restaurants, delivery):
-  - Warehouse clubs / bulk retailers: "Costco", "Sam's Club", "BJ's"
-  - Supermarkets / grocery: "Walmart", "Kroger", "Safeway", "Albertsons", "Publix", "Whole Foods", "Trader Joe's", "H-E-B", "Giant", "Food Lion", "Aldi", "Lidl", any grocery store
-  - Restaurants, "Uber Eats", "DoorDash", "Grubhub" → Food and Grocery
-- **Shopping** (general retail, not primarily food): "Amazon", "Target" (when not clearly grocery), department stores, clothing, electronics retailers
-- "Shell", "Chevron", "BP" → Transportation
-- "Netflix", "Spotify", "Adobe" → Subscription
-- Utility companies → Utilities
+Always choose the MOST SPECIFIC category. Here is the full classification guide:
+
+### Food & Dining
+- **Groceries**: Supermarkets, warehouse clubs (Costco, Sam's Club, BJ's), grocery stores (Walmart Grocery, Kroger, Safeway, Albertsons, Publix, Whole Foods, Trader Joe's, H-E-B, Giant, Food Lion, Aldi, Lidl)
+- **Restaurants**: Sit-down restaurants, fast food (McDonald's, Chick-fil-A, Wendy's, Chipotle), food delivery (Uber Eats, DoorDash, Grubhub, Postmates)
+- **Coffee Shops**: Starbucks, Dunkin', Dutch Bros, local coffee shops, tea houses
+
+### Housing
+- **Rent & Mortgage**: Rent payments, mortgage payments, HOA fees
+- **Utilities**: Electricity, water, gas (utility), sewage, trash/waste
+- **Internet & Phone**: Internet providers (Comcast, Xfinity, AT&T, Verizon, T-Mobile), cell phone plans
+- **Home Maintenance**: Home repairs, cleaning services, lawn care, home improvement stores (Home Depot, Lowe's), furniture
+
+### Transportation
+- **Gas & Fuel**: Gas stations (Shell, Chevron, BP, ExxonMobil, Costco Gas)
+- **Public Transit**: Bus, subway, train, metro cards
+- **Car Payment**: Auto loans, car lease payments
+- **Parking & Tolls**: Parking meters, parking garages, toll roads, EZ-Pass
+
+### Shopping
+- **Shopping**: General retail (Amazon, Target, Walmart non-grocery), department stores
+- **Clothing**: Clothing stores (Nike, H&M, Zara, Old Navy, TJ Maxx, Ross)
+- **Electronics**: Tech/gadget stores (Apple, Best Buy, Newegg)
+
+### Health
+- **Medical**: Doctor visits, hospital, dental, vision, lab tests
+- **Pharmacy**: CVS, Walgreens, Rite Aid, prescription medications
+- **Gym & Fitness**: Gym memberships (Planet Fitness, LA Fitness, CrossFit), fitness classes, yoga
+
+### Insurance
+- **Insurance**: Health insurance, life insurance, home insurance, car insurance, renters insurance
+
+### Entertainment & Lifestyle
+- **Entertainment**: Movies, concerts, events, amusement parks, sports tickets, gaming
+- **Subscriptions**: Streaming (Netflix, Spotify, Hulu, Disney+, HBO), software (Adobe, Microsoft), app subscriptions
+- **Education**: Tuition, textbooks, online courses (Udemy, Coursera), school supplies
+- **Personal Care**: Haircuts, salons, spas, beauty products, cosmetics
+- **Pets**: Pet food, veterinary, pet supplies, grooming
+- **Gifts & Donations**: Gifts, charity donations, religious tithes
+- **Travel**: Flights, hotels, Airbnb, rental cars, luggage, travel agencies
+
+### Other
+- **Other**: Anything that doesn't clearly fit the above categories
 
 ## 5. EXCLUSION Rules (Do NOT include)
 ⚠️ CRITICAL: Exclude ALL transactions matching these patterns:
 - **Internal transfers**: "Transfer to/from", "Online Xfer", "Online Transfer", account numbers (xxxxxx)
-- **Credit card payments**: 
+- **Credit card payments**:
   - "Credit Card Payment", "CC Payment", "Credit Crd Epay"
   - "Thank You Payment", "Payment Thank You", "PAYMENT - THANK YOU"
   - "Payment - Thank You" (any case variation)
@@ -136,7 +170,7 @@ Before responding, verify:
 ✓ Excluded transactions are NOT in output
 ✓ Dates are valid YYYY-MM-DD format
 ✓ Amounts have correct sign (+/-)
-✓ Categories match exactly from provided list
+✓ Categories match EXACTLY from the provided list (case-sensitive)
 ✓ JSON is valid and parseable
 
 # Response Format

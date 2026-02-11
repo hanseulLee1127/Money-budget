@@ -67,7 +67,7 @@ export default function TransactionCard({
       
       {/* 금액 */}
       <div className={`text-sm font-bold ${
-        transaction.amount < 0 ? 'text-red-600' : 'text-green-600'
+        transaction.amount < 0 ? 'text-red-500' : 'text-blue-600'
       }`}>
         {transaction.amount < 0 ? '-' : '+'}${Math.abs(transaction.amount).toLocaleString('en-US', {
           minimumFractionDigits: 2,

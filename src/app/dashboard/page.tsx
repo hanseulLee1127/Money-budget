@@ -508,40 +508,40 @@ function DashboardContent() {
 
   if (authLoading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="animate-spin rounded-full h-10 w-10 border-2 border-slate-200 border-t-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* 네비게이션 */}
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
+    <div className="min-h-screen bg-slate-50">
+      {/* 네비게이션 - Monarch style */}
+      <nav className="bg-white/80 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-40">
         <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-3">
-            <button 
+            <button
               onClick={handleResetDashboard}
-              className="text-xl sm:text-3xl font-bold text-blue-600 hover:text-blue-700 transition truncate min-w-0 text-left"
+              className="text-xl sm:text-2xl font-bold text-slate-900 hover:text-blue-600 transition truncate min-w-0 text-left tracking-tight"
             >
               Money Budget
             </button>
-            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <Link
                 href="/upload"
-                className="px-3 py-2 sm:px-4 text-sm sm:text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition whitespace-nowrap"
+                className="px-3 py-2 sm:px-4 text-sm sm:text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition whitespace-nowrap font-medium"
               >
                 Upload PDF
               </Link>
               <button
                 onClick={() => setShowSubscriptionModal(true)}
-                className="px-3 py-2 sm:px-4 text-sm sm:text-base text-gray-600 hover:text-gray-800 transition whitespace-nowrap"
+                className="px-3 py-2 sm:px-4 text-sm sm:text-base text-slate-500 hover:text-slate-700 transition whitespace-nowrap"
               >
                 Subscription
               </button>
               <button
                 onClick={handleSignOut}
-                className="px-3 py-2 sm:px-4 text-sm sm:text-base text-gray-600 hover:text-gray-800 transition whitespace-nowrap"
+                className="px-3 py-2 sm:px-4 text-sm sm:text-base text-slate-500 hover:text-slate-700 transition whitespace-nowrap"
               >
                 Sign Out
               </button>
@@ -550,25 +550,27 @@ function DashboardContent() {
         </div>
       </nav>
 
-      {/* 메인 콘텐츠 - 전체적으로 확 */}
+      {/* 메인 콘텐츠 */}
       <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-6xl">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 sm:mb-8 gap-4">
-          <button
-            onClick={handleResetDashboard}
-            className="text-2xl sm:text-3xl font-bold text-gray-900 hover:text-blue-600 transition text-left"
-          >
-            Dashboard
-          </button>
-          
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+          <div>
+            <button
+              onClick={handleResetDashboard}
+              className="text-2xl sm:text-3xl font-bold text-slate-900 hover:text-blue-600 transition text-left tracking-tight"
+            >
+              Dashboard
+            </button>
+            <p className="text-sm text-slate-400 mt-1">{formatMonth(selectedMonth)}</p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3">
             {/* 월 선택기 */}
             <select
               value={selectedMonth}
               onChange={(e) => {
                 setSelectedMonth(e.target.value);
-                // 필터는 유지 (월 변경 시 필터 초기화하지 않음)
               }}
-              className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-4 py-2.5 border border-slate-200 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-medium"
             >
               {availableMonths.map((month) => (
                 <option key={month} value={month}>
@@ -576,20 +578,20 @@ function DashboardContent() {
                 </option>
               ))}
             </select>
-            
+
             {/* 탭 */}
             <div className="flex overflow-x-auto pb-1 sm:pb-0 -mx-1 sm:mx-0">
-              <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg min-w-0">
+              <div className="flex space-x-1 bg-slate-100 p-1 rounded-xl min-w-0">
               <button
                 onClick={() => {
                   setActiveTab('overview');
                   setCardFilter(null);
                   setSelectedCategory(null);
                 }}
-                className={`px-4 py-2 rounded-md transition ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
                   activeTab === 'overview'
-                    ? 'bg-white text-gray-900 shadow'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
                 Overview
@@ -597,12 +599,12 @@ function DashboardContent() {
               <button
                 onClick={() => {
                   setActiveTab('transactions');
-                  setCardFilter('spending'); // 자동으로 지출 필터 적용
+                  setCardFilter('spending');
                 }}
-                className={`px-4 py-2 rounded-md transition ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
                   activeTab === 'transactions'
-                    ? 'bg-white text-gray-900 shadow'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
                 Transactions
@@ -612,10 +614,10 @@ function DashboardContent() {
                   setActiveTab('calendar');
                   setSelectedDate(null);
                 }}
-                className={`px-4 py-2 rounded-md transition ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
                   activeTab === 'calendar'
-                    ? 'bg-white text-gray-900 shadow'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
                 }`}
               >
                 Calendar
@@ -625,13 +627,13 @@ function DashboardContent() {
                   onClick={() => {
                     setActiveTab('insights');
                   }}
-                  className={`px-4 py-2 rounded-md transition ${
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
                     activeTab === 'insights'
-                      ? 'bg-white text-gray-900 shadow'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? 'bg-white text-slate-900 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-700'
                   }`}
                 >
-                  💡 Insights
+                  Insights
                 </button>
               )}
               </div>
@@ -643,22 +645,26 @@ function DashboardContent() {
         {activeTab !== 'calendar' && activeTab !== 'insights' && (
           <>
             {/* 요약 카드 - 클릭 가능 */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
               <button
                 onClick={() => {
                   setCardFilter('spending');
                   setSelectedCategory(null);
                   setActiveTab('transactions');
                 }}
-                className={`bg-white p-4 sm:p-6 rounded-xl shadow-sm border text-left transition hover:shadow-md ${
-                  cardFilter === 'spending' ? 'border-red-400 ring-2 ring-red-200' : 'border-gray-100'
+                className={`bg-white p-4 sm:p-5 rounded-2xl border text-left transition-all hover:shadow-md ${
+                  cardFilter === 'spending' ? 'border-red-300 ring-2 ring-red-100 shadow-md' : 'border-slate-100 shadow-sm'
                 }`}
               >
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Monthly Spending</h3>
-                <p className="text-xl sm:text-3xl font-bold text-red-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 13l-5 5m0 0l-5-5m5 5V6" /></svg>
+                  </div>
+                  <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wide">Spending</h3>
+                </div>
+                <p className="text-xl sm:text-2xl font-bold text-red-500">
                   ${monthlySpending.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </p>
-                <p className="text-xs text-gray-400 mt-2">Click to view details</p>
               </button>
 
               <button
@@ -667,28 +673,42 @@ function DashboardContent() {
                   setSelectedCategory(null);
                   setActiveTab('transactions');
                 }}
-                className={`bg-white p-4 sm:p-6 rounded-xl shadow-sm border text-left transition hover:shadow-md ${
-                  cardFilter === 'income' ? 'border-green-400 ring-2 ring-green-200' : 'border-gray-100'
+                className={`bg-white p-4 sm:p-5 rounded-2xl border text-left transition-all hover:shadow-md ${
+                  cardFilter === 'income' ? 'border-blue-300 ring-2 ring-blue-100 shadow-md' : 'border-slate-100 shadow-sm'
                 }`}
               >
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Monthly Income</h3>
-                <p className="text-xl sm:text-3xl font-bold text-green-600">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" /></svg>
+                  </div>
+                  <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wide">Income</h3>
+                </div>
+                <p className="text-xl sm:text-2xl font-bold text-blue-600">
                   ${monthlyIncome.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </p>
-                <p className="text-xs text-gray-400 mt-2">Click to view details</p>
               </button>
 
-              <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Net Balance</h3>
-                <p className={`text-xl sm:text-3xl font-bold ${monthlyIncome - monthlySpending >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-100">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" /></svg>
+                  </div>
+                  <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wide">Net</h3>
+                </div>
+                <p className={`text-xl sm:text-2xl font-bold ${monthlyIncome - monthlySpending >= 0 ? 'text-blue-600' : 'text-red-500'}`}>
                   {monthlyIncome - monthlySpending >= 0 ? '+' : '-'}$
                   {Math.abs(monthlyIncome - monthlySpending).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </p>
               </div>
 
-              <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Transactions</h3>
-                <p className="text-xl sm:text-3xl font-bold text-gray-900">
+              <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-100">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                  </div>
+                  <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wide">Count</h3>
+                </div>
+                <p className="text-xl sm:text-2xl font-bold text-slate-800">
                   {monthlyTransactions.length}
                 </p>
               </div>
@@ -696,34 +716,34 @@ function DashboardContent() {
 
             {/* 연간 총계 (Overview) 또는 필터 총계 (Transactions) */}
             {activeTab === 'overview' ? (
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl mb-6 sm:mb-8 border border-blue-100">
+              <div className="bg-white p-4 sm:p-5 rounded-2xl mb-6 sm:mb-8 border border-slate-100 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-4">
-                  <h3 className="text-sm font-medium text-gray-600">
+                  <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wide">
                     {currentYear} Year Total
                   </h3>
-                  <div className="flex flex-wrap gap-4 sm:gap-8">
+                  <div className="flex flex-wrap gap-6 sm:gap-8">
                     <div>
-                      <span className="text-xs text-gray-500">Total Income</span>
-                      <p className="text-lg font-bold text-green-600">
+                      <span className="text-xs text-slate-400">Income</span>
+                      <p className="text-lg font-bold text-blue-600">
                         ${yearlyIncome.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </p>
                     </div>
                     <div>
-                      <span className="text-xs text-gray-500">Total Spending</span>
-                      <p className="text-lg font-bold text-red-600">
+                      <span className="text-xs text-slate-400">Spending</span>
+                      <p className="text-lg font-bold text-red-500">
                         ${yearlySpending.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </p>
                     </div>
                     <div>
-                      <span className="text-xs text-gray-500">Net</span>
-                      <p className={`text-lg font-bold ${yearlyIncome - yearlySpending >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <span className="text-xs text-slate-400">Net</span>
+                      <p className={`text-lg font-bold ${yearlyIncome - yearlySpending >= 0 ? 'text-blue-600' : 'text-red-500'}`}>
                         {yearlyIncome - yearlySpending >= 0 ? '+' : '-'}$
                         {Math.abs(yearlyIncome - yearlySpending).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </p>
                     </div>
                     <div>
-                      <span className="text-xs text-gray-500">Transactions</span>
-                      <p className="text-lg font-bold text-gray-900">
+                      <span className="text-xs text-slate-400">Count</span>
+                      <p className="text-lg font-bold text-slate-800">
                         {yearlyTransactions.length}
                       </p>
                     </div>
@@ -731,26 +751,26 @@ function DashboardContent() {
                 </div>
               </div>
             ) : (
-              <div className="bg-gradient-to-r from-gray-50 to-slate-50 p-4 rounded-xl mb-8 border border-gray-200">
+              <div className="bg-white p-4 sm:p-5 rounded-2xl mb-6 sm:mb-8 border border-slate-100 shadow-sm">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-medium text-gray-600">
+                    <h3 className="text-sm font-medium text-slate-600">
                       {selectedCategory ? `${selectedCategory} - ` : ''}
                       {cardFilter === 'spending' ? 'Expenses' : cardFilter === 'income' ? 'Income' : 'All Transactions'}
                       {' for '}
                       {formatMonth(selectedMonth)}
                     </h3>
                   </div>
-                  <div className="flex flex-wrap gap-4 sm:gap-8">
+                  <div className="flex flex-wrap gap-6 sm:gap-8">
                     <div>
-                      <span className="text-xs text-gray-500">Total Amount</span>
-                      <p className="text-lg font-bold text-gray-900">
+                      <span className="text-xs text-slate-400">Total</span>
+                      <p className="text-lg font-bold text-slate-800">
                         ${filteredTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </p>
                     </div>
                     <div>
-                      <span className="text-xs text-gray-500">Transactions</span>
-                      <p className="text-lg font-bold text-gray-900">
+                      <span className="text-xs text-slate-400">Count</span>
+                      <p className="text-lg font-bold text-slate-800">
                         {filteredTransactions.length}
                       </p>
                     </div>
@@ -762,15 +782,15 @@ function DashboardContent() {
         )}
 
         {activeTab === 'overview' && (
-          <div className="grid lg:grid-cols-2 gap-7">
+          <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
             {/* 카테고리별 파이 차트 */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 [&_*]:outline-none min-w-0">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-5">
-                Spending by Category ({formatMonth(selectedMonth)})
+            <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-100 [&_*]:outline-none min-w-0">
+              <h2 className="text-base sm:text-lg font-semibold text-slate-800 mb-5">
+                Spending by Category
               </h2>
               {loading ? (
                 <div className="flex justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-t-blue-600"></div>
                 </div>
               ) : (
                 <SpendingPieChart data={monthlyCategoryTotals} />
@@ -778,11 +798,11 @@ function DashboardContent() {
             </div>
 
             {/* 월별 지출 바 차트 */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 [&_*]:outline-none min-w-0">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-5">Monthly Spending Trend</h2>
+            <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-100 [&_*]:outline-none min-w-0">
+              <h2 className="text-base sm:text-lg font-semibold text-slate-800 mb-5">Monthly Spending Trend</h2>
               {loading ? (
                 <div className="flex justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-t-blue-600"></div>
                 </div>
               ) : (
                 <MonthlyBarChart 
@@ -793,10 +813,10 @@ function DashboardContent() {
             </div>
 
             {/* 카테고리별 상세 - 클릭 가능 */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2 min-w-0">
+            <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2 min-w-0">
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900">
-                  Category Breakdown ({formatMonth(selectedMonth)})
+                <h2 className="text-base sm:text-lg font-semibold text-slate-800">
+                  Category Breakdown
                 </h2>
                 {selectedCategory && (
                   <button
@@ -809,7 +829,7 @@ function DashboardContent() {
               </div>
               {loading ? (
                 <div className="flex justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-t-blue-600"></div>
                 </div>
               ) : monthlyCategoryTotals.length === 0 ? (
                 <div className="text-center py-8">
@@ -819,12 +839,12 @@ function DashboardContent() {
                   </Link>
                 </div>
               ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {monthlyCategoryTotals.map((item) => {
                     const category = getCategoryForDisplay(item.category);
                     const percentage = monthlySpending > 0 ? (item.total / monthlySpending) * 100 : 0;
                     const isSelected = selectedCategory === item.category;
-                    
+
                     return (
                       <button
                         key={item.category}
@@ -833,32 +853,33 @@ function DashboardContent() {
                           setCardFilter(null);
                           setActiveTab('transactions');
                         }}
-                        className={`p-4 rounded-lg border text-left transition hover:shadow-md ${
-                          isSelected 
-                            ? 'border-blue-400 ring-2 ring-blue-200 bg-blue-50' 
-                            : 'border-gray-100 hover:border-gray-200'
+                        className={`p-4 rounded-xl border text-left transition-all hover:shadow-md ${
+                          isSelected
+                            ? 'border-blue-300 ring-2 ring-blue-100 bg-blue-50/50'
+                            : 'border-slate-100 hover:border-slate-200'
                         }`}
                       >
-                        <div className="flex items-center space-x-3 mb-2">
-                          <span className="text-2xl">{category?.icon || '📦'}</span>
-                          <div>
-                            <h3 className="font-medium text-gray-900">{item.category}</h3>
-                            <p className="text-sm text-gray-500">{percentage.toFixed(1)}% of total</p>
+                        <div className="flex items-center space-x-3 mb-3">
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ backgroundColor: `${category?.color}15` }}>
+                            {category?.icon || '📦'}
+                          </div>
+                          <div className="min-w-0">
+                            <h3 className="font-medium text-slate-800 text-sm truncate">{item.category}</h3>
+                            <p className="text-xs text-slate-400">{percentage.toFixed(1)}%</p>
                           </div>
                         </div>
-                        <p className="text-xl font-bold text-gray-900">
+                        <p className="text-lg font-bold text-slate-800">
                           ${item.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                         </p>
-                        <div className="mt-2 w-full bg-gray-100 rounded-full h-2">
+                        <div className="mt-2 w-full bg-slate-100 rounded-full h-1.5">
                           <div
-                            className="h-2 rounded-full transition-all"
+                            className="h-1.5 rounded-full transition-all"
                             style={{
                               width: `${percentage}%`,
                               backgroundColor: category?.color || '#6b7280',
                             }}
                           />
                         </div>
-                        <p className="text-xs text-gray-400 mt-2">Click to view transactions</p>
                       </button>
                     );
                   })}
@@ -870,10 +891,10 @@ function DashboardContent() {
 
         {activeTab === 'transactions' && (
           /* 거래 내역 탭 */
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            {/* 헤더 - 월별 삭제 버튼 */}
-            <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <h2 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            {/* 헤더 */}
+            <div className="px-4 sm:px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <h2 className="text-base sm:text-lg font-semibold text-slate-800 truncate">
                 Transactions for {formatMonth(selectedMonth)}
               </h2>
               {filteredTransactions.length > 0 && (
@@ -960,7 +981,7 @@ function DashboardContent() {
                     <tr>
                       <td colSpan={5} className="px-6 py-8 text-center">
                         <div className="flex justify-center">
-                          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
+                          <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-t-blue-600"></div>
                         </div>
                       </td>
                     </tr>
@@ -1007,7 +1028,7 @@ function DashboardContent() {
                             </button>
                           </td>
                           <td className={`px-3 py-3 whitespace-nowrap text-sm font-medium text-right w-26 ${
-                            transaction.amount < 0 ? 'text-red-600' : 'text-green-600'
+                            transaction.amount < 0 ? 'text-red-500' : 'text-blue-600'
                           }`}>
                             {transaction.amount < 0 ? '-' : '+'}$
                             {Math.abs(transaction.amount).toLocaleString('en-US', {
@@ -1046,7 +1067,7 @@ function DashboardContent() {
             <div className="md:hidden divide-y divide-gray-200">
               {loading ? (
                 <div className="py-12 flex justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-t-blue-600"></div>
                 </div>
               ) : filteredTransactions.length === 0 ? (
                 <div className="py-12 text-center text-gray-500 px-4">
@@ -1081,7 +1102,7 @@ function DashboardContent() {
                           </div>
                         </div>
                         <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                          <span className={`text-base font-bold ${transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                          <span className={`text-base font-bold ${transaction.amount < 0 ? 'text-red-500' : 'text-blue-600'}`}>
                             {transaction.amount < 0 ? '-' : '+'}$
                             {Math.abs(transaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                           </span>
@@ -1170,7 +1191,7 @@ function DashboardContent() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-gray-600">Income:</span>
-                    <span className="font-semibold text-green-600">
+                    <span className="font-semibold text-blue-600">
                       +${monthlyIncome.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
@@ -1241,7 +1262,7 @@ function DashboardContent() {
                           )}
                           {dayData.income > 0 && (
                             <div className={`text-xs font-bold tracking-tight px-1.5 py-0.5 rounded ${
-                              isSelected ? 'bg-green-400/30 text-white' : 'bg-green-100 text-green-600'
+                              isSelected ? 'bg-blue-400/30 text-white' : 'bg-blue-100 text-blue-600'
                             }`}>
                               +{dayData.income >= 1000 ? (dayData.income/1000).toFixed(1) + 'k' : '$' + dayData.income.toFixed(0)}
                             </div>
@@ -1264,7 +1285,7 @@ function DashboardContent() {
                   <span>Expense</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-green-500 font-medium">+$</span>
+                  <span className="text-blue-500 font-medium">+$</span>
                   <span>Income</span>
                 </div>
               </div>
@@ -1299,7 +1320,7 @@ function DashboardContent() {
                               {transaction.category}
                             </span>
                           </div>
-                          <span className={`text-base font-bold ${transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                          <span className={`text-base font-bold ${transaction.amount < 0 ? 'text-red-500' : 'text-blue-600'}`}>
                             {transaction.amount < 0 ? '-' : '+'}$
                             {Math.abs(transaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                           </span>
@@ -1320,7 +1341,7 @@ function DashboardContent() {
                         Spent: ${selectedDateTransactions.filter(t => t.amount < 0).reduce((sum, t) => sum + Math.abs(t.amount), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </span>
                       {selectedDateTransactions.some(t => t.amount > 0) && (
-                        <span className="text-green-600 font-medium">
+                        <span className="text-blue-600 font-medium">
                           Earned: ${selectedDateTransactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                         </span>
                       )}
@@ -1403,7 +1424,7 @@ function DashboardContent() {
             <div className="mt-4 rounded-lg border border-gray-100 bg-gray-50 p-3 text-sm text-gray-700">
               <div className="flex items-center justify-between gap-3">
                 <span className="truncate">{pendingDeleteTransaction.description}</span>
-                <span className={`whitespace-nowrap font-semibold ${pendingDeleteTransaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                <span className={`whitespace-nowrap font-semibold ${pendingDeleteTransaction.amount < 0 ? 'text-red-500' : 'text-blue-600'}`}>
                   {pendingDeleteTransaction.amount < 0 ? '-' : '+'}$
                   {Math.abs(pendingDeleteTransaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </span>
@@ -1486,8 +1507,8 @@ function DashboardContent() {
 export default function DashboardPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600" />
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="animate-spin rounded-full h-10 w-10 border-2 border-slate-200 border-t-blue-600" />
       </div>
     }>
       <DashboardContent />
