@@ -321,12 +321,10 @@ function DashboardContent() {
 
     try {
       setLoading(true);
-      let deletedCount = 0;
-      for (const transaction of filteredTransactions) {
-        await deleteTransaction(user.uid, transaction.id);
-        deletedCount++;
-      }
-      toast.success(`Deleted ${deletedCount} transactions`);
+      await Promise.all(
+        filteredTransactions.map((t) => deleteTransaction(user.uid, t.id))
+      );
+      toast.success(`Deleted ${count} transactions`);
       loadData();
       setShowDeleteAllModal(false);
     } catch (error) {
@@ -529,24 +527,26 @@ function DashboardContent() {
             >
               Money Budget
             </button>
-            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
               <Link
                 href="/upload"
-                className="px-3 py-2 sm:px-4 text-sm sm:text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition whitespace-nowrap font-medium"
+                className="px-2.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition whitespace-nowrap font-medium"
               >
                 Upload
               </Link>
               <button
                 onClick={() => setShowSubscriptionModal(true)}
-                className="px-3 py-2 sm:px-4 text-sm sm:text-base text-slate-500 hover:text-slate-700 transition whitespace-nowrap"
+                className="px-2 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-base text-slate-500 hover:text-slate-700 transition whitespace-nowrap"
               >
-                Subscription
+                <span className="hidden sm:inline">Subscription</span>
+                <span className="sm:hidden">Plan</span>
               </button>
               <button
                 onClick={handleSignOut}
-                className="px-3 py-2 sm:px-4 text-sm sm:text-base text-slate-500 hover:text-slate-700 transition whitespace-nowrap"
+                className="px-2 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-base text-slate-500 hover:text-slate-700 transition whitespace-nowrap"
               >
-                Sign Out
+                <span className="hidden sm:inline">Sign Out</span>
+                <span className="sm:hidden">Out</span>
               </button>
             </div>
           </div>
@@ -1147,115 +1147,138 @@ function DashboardContent() {
                 {/* 캘린더 */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-4 md:p-6 overflow-x-auto">
                 {/* 월 제목 with 네비게이션 및 요약 */}
-                <div className="mb-4">
+                <div className="mb-3 sm:mb-4">
                   <div className="flex items-center justify-between">
                     <button
                       onClick={canGoPrev ? handlePreviousMonth : undefined}
                       disabled={!canGoPrev}
-                      className={`p-2 rounded-lg transition ${
-                        canGoPrev 
-                          ? 'hover:bg-gray-100 text-gray-600 cursor-pointer' 
+                      className={`p-1.5 sm:p-2 rounded-lg transition ${
+                        canGoPrev
+                          ? 'hover:bg-gray-100 text-gray-600 cursor-pointer'
                           : 'text-gray-300 cursor-not-allowed'
                       }`}
                       aria-label="Previous month"
                     >
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                       </svg>
                     </button>
-                    
-                    <h2 className="text-2xl font-bold text-gray-900">
+
+                    <h2 className="text-lg sm:text-2xl font-bold text-gray-900">
                       {formatMonth(selectedMonth)}
                     </h2>
-                    
+
                     <button
                       onClick={canGoNext ? handleNextMonth : undefined}
                       disabled={!canGoNext}
-                      className={`p-2 rounded-lg transition ${
-                        canGoNext 
-                          ? 'hover:bg-gray-100 text-gray-600 cursor-pointer' 
+                      className={`p-1.5 sm:p-2 rounded-lg transition ${
+                        canGoNext
+                          ? 'hover:bg-gray-100 text-gray-600 cursor-pointer'
                           : 'text-gray-300 cursor-not-allowed'
                       }`}
                       aria-label="Next month"
                     >
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </button>
                   </div>
-                
+
                 {/* 월별 요약 */}
-                <div className="flex items-center justify-end gap-6 mt-3 text-sm">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center sm:justify-end gap-3 sm:gap-6 mt-2 sm:mt-3 text-xs sm:text-sm">
+                  <div className="flex items-center gap-1 sm:gap-2">
                     <span className="text-gray-600">Spending:</span>
                     <span className="font-semibold text-red-600">
-                      -${monthlySpending.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      -${monthlySpending.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 sm:gap-2">
                     <span className="text-gray-600">Income:</span>
                     <span className="font-semibold text-blue-600">
-                      +${monthlyIncome.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      +${monthlyIncome.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </span>
                   </div>
                 </div>
               </div>
               
               {/* 요일 헤더 */}
-              <div className="grid grid-cols-7 gap-2 pb-3 mb-3 border-b border-gray-300">
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, i) => (
-                  <div 
-                    key={day} 
-                    className={`text-center text-sm font-semibold py-2 ${
+              <div className="grid grid-cols-7 gap-0.5 sm:gap-2 pb-2 sm:pb-3 mb-2 sm:mb-3 border-b border-gray-300">
+                {[
+                  { short: 'S', full: 'Sun' },
+                  { short: 'M', full: 'Mon' },
+                  { short: 'T', full: 'Tue' },
+                  { short: 'W', full: 'Wed' },
+                  { short: 'T', full: 'Thu' },
+                  { short: 'F', full: 'Fri' },
+                  { short: 'S', full: 'Sat' },
+                ].map((day, i) => (
+                  <div
+                    key={day.full}
+                    className={`text-center text-xs sm:text-sm font-semibold py-1 sm:py-2 ${
                       i === 0 ? 'text-red-400' : i === 6 ? 'text-blue-400' : 'text-gray-500'
                     }`}
                   >
-                    {day}
+                    <span className="sm:hidden">{day.short}</span>
+                    <span className="hidden sm:inline">{day.full}</span>
                   </div>
                 ))}
               </div>
               
               {/* 날짜 그리드 */}
-              <div className="grid grid-cols-7 gap-1 sm:gap-2">
+              <div className="grid grid-cols-7 gap-0.5 sm:gap-2">
                 {calendarDays.map((day, index) => {
                   if (!day) {
-                    return <div key={`empty-${index}`} className="h-14 sm:h-20" />;
+                    return <div key={`empty-${index}`} className="h-10 sm:h-20" />;
                   }
-                  
+
                   const dateStr = format(day, 'yyyy-MM-dd');
                   const dayData = calendarData[dateStr];
                   const isSelected = selectedDate === dateStr;
                   const isToday = format(new Date(), 'yyyy-MM-dd') === dateStr;
                   const hasData = dayData && (dayData.spending > 0 || dayData.income > 0);
                   const dayOfWeek = getDay(day);
-                  
+
                   return (
                     <button
                       key={dateStr}
                       onClick={() => setSelectedDate(isSelected ? null : dateStr)}
-                      className={`h-14 sm:h-20 p-1.5 sm:p-2 rounded-lg sm:rounded-xl transition-all flex flex-col items-start justify-start relative ${
-                        isSelected 
-                          ? 'bg-blue-500 text-white shadow-lg scale-105' 
-                          : isToday 
-                            ? 'border-2 border-blue-500 hover:bg-blue-50' 
+                      className={`h-10 sm:h-20 p-0.5 sm:p-2 rounded-md sm:rounded-xl transition-all flex flex-col items-center sm:items-start justify-start relative ${
+                        isSelected
+                          ? 'bg-blue-500 text-white shadow-lg sm:scale-105'
+                          : isToday
+                            ? 'border-2 border-blue-500 hover:bg-blue-50'
                             : 'hover:bg-gray-50'
                       }`}
                     >
-                      <span className={`text-sm sm:text-lg font-bold ${
-                        isSelected 
-                          ? 'text-white' 
-                          : isToday 
-                            ? 'text-blue-600' 
-                            : dayOfWeek === 0 
-                              ? 'text-red-500' 
-                              : dayOfWeek === 6 
-                                ? 'text-blue-500' 
+                      <span className={`text-xs sm:text-lg font-bold leading-tight ${
+                        isSelected
+                          ? 'text-white'
+                          : isToday
+                            ? 'text-blue-600'
+                            : dayOfWeek === 0
+                              ? 'text-red-500'
+                              : dayOfWeek === 6
+                                ? 'text-blue-500'
                                 : 'text-gray-700'
                       }`}>
                         {format(day, 'd')}
                       </span>
+
+                      {/* 모바일: 컬러 도트 표시 */}
                       {hasData && (
-                        <div className="mt-auto w-full space-y-1">
+                        <div className="sm:hidden flex items-center justify-center gap-0.5 mt-0.5">
+                          {dayData.spending > 0 && (
+                            <div className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-red-200' : 'bg-red-400'}`} />
+                          )}
+                          {dayData.income > 0 && (
+                            <div className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-blue-200' : 'bg-blue-400'}`} />
+                          )}
+                        </div>
+                      )}
+
+                      {/* 데스크톱: 금액 텍스트 표시 */}
+                      {hasData && (
+                        <div className="hidden sm:flex mt-auto w-full flex-col gap-1">
                           {dayData.spending > 0 && (
                             <div className={`text-xs font-bold tracking-tight px-1.5 py-0.5 rounded ${
                               isSelected ? 'bg-red-400/30 text-white' : 'bg-red-100 text-red-600'
@@ -1278,17 +1301,19 @@ function DashboardContent() {
               </div>
               
               {/* 범례 */}
-              <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-center gap-6 text-sm text-gray-500">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-blue-500 rounded" />
+              <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 flex items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-500">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-blue-500 rounded" />
                   <span>Today</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-red-500 font-medium">-$</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-red-400 sm:hidden" />
+                  <span className="hidden sm:inline text-red-500 font-medium">-$</span>
                   <span>Expense</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-blue-500 font-medium">+$</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-blue-400 sm:hidden" />
+                  <span className="hidden sm:inline text-blue-500 font-medium">+$</span>
                   <span>Income</span>
                 </div>
               </div>
@@ -1297,33 +1322,33 @@ function DashboardContent() {
                 {/* 선택된 날짜의 거래 목록 (캘린더와 동일 너비) */}
                 {selectedDate && (
                   <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="px-5 py-3 border-b border-gray-200 bg-gray-50">
-                  <h3 className="text-base font-semibold text-gray-900">
+                <div className="px-4 sm:px-5 py-2.5 sm:py-3 border-b border-gray-200 bg-gray-50">
+                  <h3 className="text-sm sm:text-base font-semibold text-gray-900">
                     {format(new Date(selectedDate + 'T12:00:00'), 'MMMM d, yyyy')}
                   </h3>
                 </div>
-                
+
                 {selectedDateTransactions.length === 0 ? (
-                  <div className="px-5 py-6 text-center text-gray-500">
+                  <div className="px-4 sm:px-5 py-6 text-center text-gray-500 text-sm">
                     No transactions for this date
                   </div>
                 ) : (
                   <div className="divide-y divide-gray-100">
                     {selectedDateTransactions.map((transaction) => {
                       const category = getCategoryForDisplay(transaction.category);
-                      
+
                       return (
-                        <div key={transaction.id} className="px-5 py-3 flex items-center justify-between">
-                          <div>
-                            <p className="font-medium text-gray-900 text-sm">{transaction.description}</p>
-                            <span 
-                              className="text-xs px-2 py-0.5 rounded-full whitespace-nowrap"
+                        <div key={transaction.id} className="px-4 sm:px-5 py-2.5 sm:py-3 flex items-center justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-gray-900 text-xs sm:text-sm truncate">{transaction.description}</p>
+                            <span
+                              className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full whitespace-nowrap"
                               style={{ backgroundColor: `${category?.color}20`, color: category?.color }}
                             >
                               {transaction.category}
                             </span>
                           </div>
-                          <span className={`text-base font-bold ${transaction.amount < 0 ? 'text-red-500' : 'text-blue-600'}`}>
+                          <span className={`text-sm sm:text-base font-bold flex-shrink-0 ${transaction.amount < 0 ? 'text-red-500' : 'text-blue-600'}`}>
                             {transaction.amount < 0 ? '-' : '+'}$
                             {Math.abs(transaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                           </span>
@@ -1335,17 +1360,17 @@ function DashboardContent() {
                 
                 {/* 선택된 날짜 총계 */}
                 {selectedDateTransactions.length > 0 && (
-                  <div className="px-6 py-3 bg-gray-50 border-t border-gray-200 flex justify-between text-sm">
+                  <div className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gray-50 border-t border-gray-200 flex flex-wrap justify-between gap-1 text-xs sm:text-sm">
                     <span className="text-gray-500">
                       {selectedDateTransactions.length} transaction{selectedDateTransactions.length > 1 ? 's' : ''}
                     </span>
-                    <div className="flex gap-4">
+                    <div className="flex gap-3 sm:gap-4">
                       <span className="text-red-600 font-medium">
-                        Spent: ${selectedDateTransactions.filter(t => t.amount < 0).reduce((sum, t) => sum + Math.abs(t.amount), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        -${selectedDateTransactions.filter(t => t.amount < 0).reduce((sum, t) => sum + Math.abs(t.amount), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </span>
                       {selectedDateTransactions.some(t => t.amount > 0) && (
                         <span className="text-blue-600 font-medium">
-                          Earned: ${selectedDateTransactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                          +${selectedDateTransactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                         </span>
                       )}
                     </div>

@@ -156,13 +156,9 @@ export async function addTransactions(
   uid: string,
   transactions: Omit<Transaction, 'id' | 'createdAt'>[]
 ): Promise<string[]> {
-  const ids: string[] = [];
-  
-  for (const transaction of transactions) {
-    const id = await addTransaction(uid, transaction);
-    ids.push(id);
-  }
-  
+  const ids = await Promise.all(
+    transactions.map((transaction) => addTransaction(uid, transaction))
+  );
   return ids;
 }
 
@@ -296,14 +292,9 @@ export async function deleteTransactionsByMonth(
 ): Promise<number> {
   const transactions = await getTransactions(uid);
   const toDelete = transactions.filter((t) => t.date?.startsWith(month));
-  
-  let deletedCount = 0;
-  for (const transaction of toDelete) {
-    await deleteTransaction(uid, transaction.id);
-    deletedCount++;
-  }
-  
-  return deletedCount;
+
+  await Promise.all(toDelete.map((t) => deleteTransaction(uid, t.id)));
+  return toDelete.length;
 }
 
 /**
@@ -314,7 +305,7 @@ export async function deleteRecurringSeries(
   transaction: Transaction
 ): Promise<number> {
   const allTransactions = await getTransactions(uid);
-  
+
   // 같은 recurring 시리즈의 모든 거래 찾기 (날짜 무관)
   const toDelete = allTransactions.filter(
     (t) =>
@@ -323,14 +314,9 @@ export async function deleteRecurringSeries(
       t.category === transaction.category &&
       t.isRecurring // recurring 거래만
   );
-  
-  let deletedCount = 0;
-  for (const trans of toDelete) {
-    await deleteTransaction(uid, trans.id);
-    deletedCount++;
-  }
-  
-  return deletedCount;
+
+  await Promise.all(toDelete.map((t) => deleteTransaction(uid, t.id)));
+  return toDelete.length;
 }
 
 /**
