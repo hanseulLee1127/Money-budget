@@ -206,7 +206,7 @@ Output ONLY the JSON array. No explanations, no markdown code blocks, no additio
         },
       ],
       temperature: 0.2,
-      max_tokens: 16000, // 증가: 553개 트랜잭션 처리 가능하도록
+      max_tokens: 8000, // 100개 chunk에 최적화
     });
 
     const responseText = completion.choices[0]?.message?.content?.trim() || '[]';
