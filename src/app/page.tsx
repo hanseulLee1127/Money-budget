@@ -94,6 +94,76 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* 지원 카드사 */}
+        <section className="mt-16 sm:mt-24 max-w-3xl mx-auto px-4">
+          <div className="bg-white/80 backdrop-blur rounded-2xl border border-gray-200 shadow-lg p-6 sm:p-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 text-center mb-3">
+              Works with every major US card company
+            </h2>
+            <p className="text-gray-600 text-center text-sm sm:text-base leading-relaxed mb-5">
+              Almost every US credit card company lets you download your transaction history as CSV or your card statement as PDF. Just log in to your card company website, download the file, and upload it here.
+            </p>
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+              {['Chase', 'Amex', 'Capital One', 'Citi', 'Wells Fargo', 'Discover', 'Bank of America', 'Apple Card', 'US Bank', 'Robinhood'].map((name) => (
+                <span key={name} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs sm:text-sm font-medium rounded-full">
+                  {name}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 기능 소개 */}
+        <div className="mt-16 sm:mt-32 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
+          {/* 기능 1 */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+            <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
+              <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-3">
+              No bank connections
+            </h3>
+            <p className="text-gray-600">
+              Your banks stay disconnected. No linking accounts, no risk to your personal info.
+              You control what you upload.
+            </p>
+          </div>
+
+          {/* 기능 2 */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+            <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
+              <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-3">
+              Upload once a month
+            </h3>
+            <p className="text-gray-600">
+              Credit card transaction history or bank statement. Upload a PDF or CSV.
+              AI extracts and categorizes everything. No daily logging.
+            </p>
+          </div>
+
+          {/* 기능 3 */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+            <div className="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center mb-6">
+              <svg className="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-3">
+              Know where to save
+            </h3>
+            <p className="text-gray-600">
+              Charts and calendar show where your money went.
+              Once you see it by category, you get a clear idea where you can save.
+            </p>
+          </div>
+        </div>
+
         {/* 데모 비디오 - 얼마나 간단한지 직접 보여주기 (2배속) */}
         <section className="mt-16 sm:mt-24 max-w-4xl mx-auto px-0">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 text-center mb-2 sm:mb-3">
@@ -177,76 +247,6 @@ export default function HomePage() {
             <p className="text-gray-600 text-center text-sm sm:text-base leading-relaxed">
               Card transaction history has far less personal info than people think. We built around file upload, CSV exports and PDF statements, so you stay in control. No bank linking needed. Before any file is sent to AI, we strip out account numbers, routing numbers, names, and addresses. Only transaction lines (merchant, date, amount) are used for categorization, so your data stays minimal and safe.
             </p>
-          </div>
-        </section>
-
-        {/* 기능 소개 */}
-        <div className="mt-16 sm:mt-32 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
-          {/* 기능 1 */}
-          <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
-            <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
-              <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">
-              No bank connections
-            </h3>
-            <p className="text-gray-600">
-              Your banks stay disconnected. No linking accounts, no risk to your personal info. 
-              You control what you upload.
-            </p>
-          </div>
-
-          {/* 기능 2 */}
-          <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
-            <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
-              <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">
-              Upload once a month
-            </h3>
-            <p className="text-gray-600">
-              Credit card transaction history or bank statement. Upload a PDF or CSV.
-              AI extracts and categorizes everything. No daily logging.
-            </p>
-          </div>
-
-          {/* 기능 3 */}
-          <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
-            <div className="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center mb-6">
-              <svg className="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">
-              Know where to save
-            </h3>
-            <p className="text-gray-600">
-              Charts and calendar show where your money went. 
-              Once you see it by category, you get a clear idea where you can save.
-            </p>
-          </div>
-        </div>
-
-        {/* 지원 카드사 */}
-        <section className="mt-16 sm:mt-24 max-w-3xl mx-auto px-4">
-          <div className="bg-white/80 backdrop-blur rounded-2xl border border-gray-200 shadow-lg p-6 sm:p-8">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 text-center mb-3">
-              Works with every major US card company
-            </h2>
-            <p className="text-gray-600 text-center text-sm sm:text-base leading-relaxed mb-5">
-              Almost every US credit card company lets you download your transaction history as CSV or your card statement as PDF. Just log in to your card company website, download the file, and upload it here.
-            </p>
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-              {['Chase', 'Amex', 'Capital One', 'Citi', 'Wells Fargo', 'Discover', 'Bank of America', 'Apple Card', 'US Bank', 'Robinhood'].map((name) => (
-                <span key={name} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs sm:text-sm font-medium rounded-full">
-                  {name}
-                </span>
-              ))}
-            </div>
           </div>
         </section>
       </main>
