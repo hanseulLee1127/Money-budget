@@ -575,20 +575,42 @@ function DashboardContent() {
           </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-3">
-            {/* 월 선택기 */}
-            <select
-              value={selectedMonth}
-              onChange={(e) => {
-                setSelectedMonth(e.target.value);
-              }}
-              className="px-4 py-2.5 border border-slate-200 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-medium"
-            >
-              {availableMonths.map((month) => (
-                <option key={month} value={month}>
-                  {formatMonth(month)}
-                </option>
-              ))}
-            </select>
+            {/* 월 선택기 with 화살표 */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handlePreviousMonth}
+                className="p-2 rounded-lg transition hover:bg-slate-100 text-slate-600 cursor-pointer flex-shrink-0"
+                aria-label="Previous month"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              <select
+                value={selectedMonth}
+                onChange={(e) => {
+                  setSelectedMonth(e.target.value);
+                }}
+                className="px-4 py-2.5 border border-slate-200 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-medium"
+              >
+                {availableMonths.map((month) => (
+                  <option key={month} value={month}>
+                    {formatMonth(month)}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                onClick={handleNextMonth}
+                className="p-2 rounded-lg transition hover:bg-slate-100 text-slate-600 cursor-pointer flex-shrink-0"
+                aria-label="Next month"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
 
             {/* 탭 */}
             <div className="flex overflow-x-auto pb-1 sm:pb-0 -mx-1 sm:mx-0">
