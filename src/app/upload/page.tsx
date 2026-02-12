@@ -345,13 +345,13 @@ export default function UploadPage() {
                 <h4 className="font-medium text-blue-800 text-sm sm:text-base">Your Data is Secure</h4>
                 <div className="text-sm text-blue-700 mt-2 space-y-2">
                   <p>
-                    <strong>Card transaction history (CSV)</strong> has zero sensitive information — just merchant names, dates, and amounts.
+                    <strong>Card transaction history (CSV)</strong> has zero sensitive information: just merchant names, dates, and amounts.
                   </p>
                   <p>
                     <strong>Card statements (PDF)</strong> may contain personal info, which is automatically filtered out (account numbers, addresses, names) before AI processing.
                   </p>
                   <p className="text-blue-600">
-                    If you&apos;re concerned, you can manually redact personal info from your file before uploading — our system works perfectly fine with that. Only transaction lines (merchant, date, amount) are needed.
+                    If you&apos;re concerned, you can manually redact personal info from your file before uploading. Our system works perfectly fine with that. Only transaction lines (merchant, date, amount) are needed.
                   </p>
                 </div>
               </div>

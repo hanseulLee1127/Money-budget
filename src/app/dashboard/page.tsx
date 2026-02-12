@@ -538,9 +538,13 @@ function DashboardContent() {
             <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
               <Link
                 href="/upload"
-                className="px-2.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition whitespace-nowrap font-medium"
+                className="px-3 py-2 sm:px-5 sm:py-2.5 text-sm sm:text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition whitespace-nowrap font-semibold flex items-center gap-1.5 sm:gap-2 shadow-sm hover:shadow-md"
               >
-                Upload
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <span className="hidden sm:inline">Upload File</span>
+                <span className="sm:hidden">Upload</span>
               </Link>
               <button
                 onClick={() => setShowSubscriptionModal(true)}
@@ -674,8 +678,37 @@ function DashboardContent() {
           </div>
         </div>
 
+        {/* Empty State - 거래가 없을 때 */}
+        {confirmedTransactions.length === 0 && activeTab === 'overview' && (
+          <div className="bg-white rounded-2xl p-8 sm:p-12 text-center shadow-sm border border-slate-100 max-w-2xl mx-auto">
+            <div className="w-20 h-20 mx-auto mb-6 bg-blue-50 rounded-2xl flex items-center justify-center">
+              <svg className="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-3">
+              No transactions yet
+            </h2>
+            <p className="text-slate-500 mb-8 text-base sm:text-lg max-w-md mx-auto">
+              Upload your card statement or card transaction history to get started. AI will automatically categorize everything for you.
+            </p>
+            <Link
+              href="/upload"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-xl"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              Upload Your First File
+            </Link>
+            <p className="text-sm text-slate-400 mt-6">
+              Supported formats: PDF, CSV • Works with all major US card companies
+            </p>
+          </div>
+        )}
+
         {/* 요약 카드와 총계는 캘린더 및 Insights 탭에서 숨김 */}
-        {activeTab !== 'calendar' && activeTab !== 'insights' && (
+        {confirmedTransactions.length > 0 && activeTab !== 'calendar' && activeTab !== 'insights' && (
           <>
             {/* 요약 카드 - 클릭 가능 */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
@@ -814,7 +847,7 @@ function DashboardContent() {
           </>
         )}
 
-        {activeTab === 'overview' && (
+        {activeTab === 'overview' && confirmedTransactions.length > 0 && (
           <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
             {/* 카테고리별 파이 차트 */}
             <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-100 [&_*]:outline-none min-w-0">
@@ -1021,7 +1054,20 @@ function DashboardContent() {
                   ) : filteredTransactions.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                        {monthlyTransactions.length === 0 ? (
+                        {confirmedTransactions.length === 0 ? (
+                          <div className="py-4">
+                            <p className="text-base mb-3">No transactions yet.</p>
+                            <Link
+                              href="/upload"
+                              className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                              </svg>
+                              Upload File
+                            </Link>
+                          </div>
+                        ) : monthlyTransactions.length === 0 ? (
                           <>
                             No transactions for {formatMonth(selectedMonth)}.{' '}
                             <button
@@ -1104,7 +1150,20 @@ function DashboardContent() {
                 </div>
               ) : filteredTransactions.length === 0 ? (
                 <div className="py-12 text-center text-gray-500 px-4">
-                  {monthlyTransactions.length === 0 ? (
+                  {confirmedTransactions.length === 0 ? (
+                    <div className="py-4">
+                      <p className="text-base mb-3">No transactions yet.</p>
+                      <Link
+                        href="/upload"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        Upload File
+                      </Link>
+                    </div>
+                  ) : monthlyTransactions.length === 0 ? (
                     <>
                       No transactions for {formatMonth(selectedMonth)}.{' '}
                       <button onClick={() => setShowAddModal(true)} className="text-blue-600 hover:text-blue-700 font-medium">
