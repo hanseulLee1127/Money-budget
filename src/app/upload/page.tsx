@@ -214,7 +214,7 @@ export default function UploadPage() {
               Upload Transaction History
             </h1>
             <p className="text-sm sm:text-base text-slate-500 px-1">
-              Upload your bank statement PDF or transaction history CSV and we&apos;ll automatically extract and categorize your transactions.
+              Upload your card statement PDF or card transaction history CSV and we&apos;ll automatically extract and categorize your transactions.
             </p>
           </div>
 
@@ -336,17 +336,24 @@ export default function UploadPage() {
           )}
 
           {/* 보안 안내 */}
-          <div className="mt-8 p-4 bg-blue-50/60 rounded-xl border border-blue-100">
+          <div className="mt-8 p-4 sm:p-5 bg-blue-50/60 rounded-xl border border-blue-100">
             <div className="flex items-start">
               <svg className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
               <div>
-                <h4 className="font-medium text-blue-800 text-sm">Your Data is Secure</h4>
-                <p className="text-sm text-blue-600 mt-1">
-                  Personal information (account numbers, addresses, phone numbers) is automatically removed before processing.
-                  Your transaction data is encrypted before storage.
-                </p>
+                <h4 className="font-medium text-blue-800 text-sm sm:text-base">Your Data is Secure</h4>
+                <div className="text-sm text-blue-700 mt-2 space-y-2">
+                  <p>
+                    <strong>Card transaction history (CSV)</strong> has zero sensitive information — just merchant names, dates, and amounts.
+                  </p>
+                  <p>
+                    <strong>Card statements (PDF)</strong> may contain personal info, which is automatically filtered out (account numbers, addresses, names) before AI processing.
+                  </p>
+                  <p className="text-blue-600">
+                    If you&apos;re concerned, you can manually redact personal info from your file before uploading — our system works perfectly fine with that. Only transaction lines (merchant, date, amount) are needed.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

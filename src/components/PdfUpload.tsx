@@ -157,7 +157,7 @@ export default function PdfUpload({ onUploadComplete, onError }: PdfUploadProps)
             Upload Transaction History
           </h3>
           <p className="text-sm sm:text-base text-slate-400 mb-4 px-2">
-            Drag and drop your statement PDF or transaction history CSV here, or click to browse
+            Drag and drop your card statement PDF or card transaction history CSV here, or click to browse
           </p>
 
           {/* 버튼 */}
