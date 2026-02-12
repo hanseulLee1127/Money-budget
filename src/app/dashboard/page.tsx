@@ -32,8 +32,14 @@ function DashboardContent() {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'transactions' | 'calendar' | 'insights'>('overview');
   
-  // 월별 필터 상태 (초기값은 빈 문자열, useEffect에서 설정)
-  const [selectedMonth, setSelectedMonth] = useState<string>('');
+  // 월별 필터 상태 (localStorage에서 읽거나 현재 달)
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('selectedMonth');
+      if (saved) return saved;
+    }
+    return format(new Date(), 'yyyy-MM');
+  });
   
   // 카테고리 상세 보기 상태
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -276,28 +282,32 @@ function DashboardContent() {
     }
   };
 
-  // 캘린더 월 네비게이션: 데이터가 있는 달만 이동 (데이터 없는 달은 패스)
+  // 캘린더 월 네비게이션: 무조건 한 달씩 이동 (데이터 유무 관계없이)
   const handlePreviousMonth = () => {
-    if (!selectedMonth || availableMonths.length === 0) return;
-    const prevMonths = availableMonths.filter((m) => m < selectedMonth);
-    const prevMonth = prevMonths[0]; // 내림차순이므로 첫 번째가 selectedMonth 바로 이전 달(데이터 있음)
-    if (prevMonth) setSelectedMonth(prevMonth);
+    if (!selectedMonth) return;
+    const [year, month] = selectedMonth.split('-').map(Number);
+    const date = new Date(year, month - 1 - 1, 15); // 이전 달
+    const prevMonth = format(date, 'yyyy-MM');
+    setSelectedMonth(prevMonth);
   };
 
   const handleNextMonth = () => {
-    if (!selectedMonth || availableMonths.length === 0) return;
-    const nextMonths = availableMonths.filter((m) => m > selectedMonth);
-    const nextMonth = nextMonths[nextMonths.length - 1]; // 내림차순이므로 마지막이 selectedMonth 바로 다음 달(데이터 있음)
-    if (nextMonth) setSelectedMonth(nextMonth);
+    if (!selectedMonth) return;
+    const [year, month] = selectedMonth.split('-').map(Number);
+    const date = new Date(year, month - 1 + 1, 15); // 다음 달
+    const nextMonth = format(date, 'yyyy-MM');
+    setSelectedMonth(nextMonth);
   };
 
   const handleResetDashboard = useCallback(() => {
     setActiveTab('overview');
     setSelectedCategory(null);
     setCardFilter(null);
-    setSelectedMonth(format(new Date(), 'yyyy-MM'));
+    const currentMonth = format(new Date(), 'yyyy-MM');
+    setSelectedMonth(currentMonth);
     setSelectedDate(null);
     if (typeof window !== 'undefined') {
+      localStorage.setItem('selectedMonth', currentMonth);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, []);
@@ -358,14 +368,12 @@ function DashboardContent() {
     return sorted;
   }, [confirmedTransactions]);
 
-  // 초기 월 선택: 데이터가 있는 달만 표시 (없는 달이면 가장 최근 달로)
+  // selectedMonth 변경 시 localStorage에 저장
   useEffect(() => {
-    if (availableMonths.length > 0) {
-      if (!selectedMonth || !availableMonths.includes(selectedMonth)) {
-        setSelectedMonth(availableMonths[0]);
-      }
+    if (selectedMonth && typeof window !== 'undefined') {
+      localStorage.setItem('selectedMonth', selectedMonth);
     }
-  }, [availableMonths, selectedMonth]);
+  }, [selectedMonth]);
 
   // 선택된 월의 거래
   const monthlyTransactions = useMemo(() => {
@@ -523,7 +531,7 @@ function DashboardContent() {
           <div className="flex items-center justify-between gap-3">
             <button
               onClick={handleResetDashboard}
-              className="text-xl sm:text-2xl font-bold text-slate-900 hover:text-blue-600 transition truncate min-w-0 text-left tracking-tight"
+              className="text-2xl sm:text-3xl font-bold text-blue-600 transition truncate min-w-0 text-left"
             >
               Money Budget
             </button>
@@ -1134,11 +1142,7 @@ function DashboardContent() {
           </div>
         )}
 
-        {activeTab === 'calendar' && (() => {
-          const canGoPrev = !!selectedMonth && availableMonths.some((m) => m < selectedMonth);
-          const canGoNext = !!selectedMonth && availableMonths.some((m) => m > selectedMonth);
-
-          return (
+        {activeTab === 'calendar' && (
             /* 캘린더 탭: 캘린더와 아래 리스트 같은 너비 */
             <div className="max-w-4xl mx-auto">
               <div className="flex gap-2 sm:gap-4">
@@ -1150,13 +1154,8 @@ function DashboardContent() {
                 <div className="mb-3 sm:mb-4">
                   <div className="flex items-center justify-between">
                     <button
-                      onClick={canGoPrev ? handlePreviousMonth : undefined}
-                      disabled={!canGoPrev}
-                      className={`p-1.5 sm:p-2 rounded-lg transition ${
-                        canGoPrev
-                          ? 'hover:bg-gray-100 text-gray-600 cursor-pointer'
-                          : 'text-gray-300 cursor-not-allowed'
-                      }`}
+                      onClick={handlePreviousMonth}
+                      className="p-1.5 sm:p-2 rounded-lg transition hover:bg-gray-100 text-gray-600 cursor-pointer"
                       aria-label="Previous month"
                     >
                       <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1169,13 +1168,8 @@ function DashboardContent() {
                     </h2>
 
                     <button
-                      onClick={canGoNext ? handleNextMonth : undefined}
-                      disabled={!canGoNext}
-                      className={`p-1.5 sm:p-2 rounded-lg transition ${
-                        canGoNext
-                          ? 'hover:bg-gray-100 text-gray-600 cursor-pointer'
-                          : 'text-gray-300 cursor-not-allowed'
-                      }`}
+                      onClick={handleNextMonth}
+                      className="p-1.5 sm:p-2 rounded-lg transition hover:bg-gray-100 text-gray-600 cursor-pointer"
                       aria-label="Next month"
                     >
                       <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1394,8 +1388,7 @@ function DashboardContent() {
                 </div>
               </div>
             </div>
-          );
-        })()}
+          )}
 
         {activeTab === 'insights' && (
           /* Insights 탭 */
