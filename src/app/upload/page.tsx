@@ -63,24 +63,65 @@ export default function UploadPage() {
     setStep('categorizing');
 
     try {
-      const response = await fetch('/api/categorize', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text }),
-      });
+      // CSV 감지: 헤더가 있고 줄이 많으면 chunking
+      const lines = text.trim().split('\n');
+      const looksLikeCsv = lines.length > 1 && lines[0].includes(',');
+      const CHUNK_SIZE = 100;
 
-      const result = await response.json();
+      let categorizedTransactions: CategorizedTransaction[] = [];
 
-      if (!result.success) {
-        toast.error(result.error || 'Failed to extract transactions');
-        setStep('upload');
-        return;
+      if (looksLikeCsv && lines.length > CHUNK_SIZE + 1) {
+        // CSV이고 100개 넘으면 chunking
+        const header = lines[0];
+        const dataLines = lines.slice(1);
+        const chunks: string[] = [];
+
+        // 100개씩 나누기 (헤더 포함)
+        for (let i = 0; i < dataLines.length; i += CHUNK_SIZE) {
+          const chunkLines = dataLines.slice(i, i + CHUNK_SIZE);
+          const chunkText = [header, ...chunkLines].join('\n');
+          chunks.push(chunkText);
+        }
+
+        console.log(`Processing ${dataLines.length} rows in ${chunks.length} chunks of ${CHUNK_SIZE}`);
+
+        // 병렬 처리
+        const chunkResults = await Promise.all(
+          chunks.map(async (chunkText) => {
+            const response = await fetch('/api/categorize', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ text: chunkText }),
+            });
+            const result = await response.json();
+            if (!result.success) {
+              throw new Error(result.error || 'Chunk processing failed');
+            }
+            return result.data as CategorizedTransaction[];
+          })
+        );
+
+        // 모든 결과 합치기
+        categorizedTransactions = chunkResults.flat();
+
+      } else {
+        // 작은 파일이거나 PDF → 기존 방식
+        const response = await fetch('/api/categorize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text }),
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+          toast.error(result.error || 'Failed to extract transactions');
+          setStep('upload');
+          return;
+        }
+
+        categorizedTransactions = result.data;
       }
-
-      // AI가 추출하고 분류한 거래 내역
-      const categorizedTransactions: CategorizedTransaction[] = result.data;
 
       if (categorizedTransactions.length === 0) {
         toast.error('No transactions found in the file');
@@ -113,7 +154,8 @@ export default function UploadPage() {
 
       router.push('/review');
 
-    } catch {
+    } catch (error) {
+      console.error('Processing error:', error);
       toast.error('Failed to process file. Please try again.');
       setStep('upload');
     }
