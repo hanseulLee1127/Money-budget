@@ -13,10 +13,6 @@ export const maxDuration = 300;
 
 export async function POST(request: NextRequest) {
   try {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/37d305a8-3c44-4ff8-8053-bac24c843629',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'categorize/route.ts:12',message:'AI categorization started',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-    // #endregion
-    
     // OpenAI API 키 확인
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json(
@@ -34,10 +30,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/37d305a8-3c44-4ff8-8053-bac24c843629',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'categorize/route.ts:32',message:'Text received',data:{textLength:text.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-    // #endregion
 
     // 카테고리 목록 가져오기
     const categories = getCategoryNames();
@@ -189,10 +181,6 @@ Before responding, verify:
 # Response Format
 Output ONLY the JSON array. No explanations, no markdown code blocks, no additional text.`;
 
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/37d305a8-3c44-4ff8-8053-bac24c843629',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'categorize/route.ts:66',message:'Sending to OpenAI',data:{promptLength:prompt.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-    // #endregion
-
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -210,11 +198,7 @@ Output ONLY the JSON array. No explanations, no markdown code blocks, no additio
     });
 
     const responseText = completion.choices[0]?.message?.content?.trim() || '[]';
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/37d305a8-3c44-4ff8-8053-bac24c843629',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'categorize/route.ts:89',message:'OpenAI response received',data:{responseLength:responseText.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-    // #endregion
-    
+
     // JSON 파싱
     let transactions: CategorizedTransaction[];
     try {
@@ -225,14 +209,7 @@ Output ONLY the JSON array. No explanations, no markdown code blocks, no additio
       } else {
         throw new Error('No JSON array found in response');
       }
-      
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/37d305a8-3c44-4ff8-8053-bac24c843629',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'categorize/route.ts:103',message:'Transactions parsed',data:{count:transactions.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-      // #endregion
     } catch (parseError) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/37d305a8-3c44-4ff8-8053-bac24c843629',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'categorize/route.ts:109',message:'JSON parse failed',data:{error:parseError instanceof Error?parseError.message:String(parseError),response:responseText.substring(0,500)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-      // #endregion
       console.error('Failed to parse OpenAI response:', responseText);
       return NextResponse.json(
         { success: false, error: 'Failed to parse AI response. The statement format may not be supported.' },
@@ -309,9 +286,6 @@ Output ONLY the JSON array. No explanations, no markdown code blocks, no additio
     });
 
   } catch (error) {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/37d305a8-3c44-4ff8-8053-bac24c843629',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'categorize/route.ts:142',message:'Categorization error',data:{error:error instanceof Error?error.message:String(error)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-    // #endregion
     console.error('Categorization error:', error);
     
     // OpenAI API 에러 처리
