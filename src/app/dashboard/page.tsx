@@ -52,6 +52,9 @@ function DashboardContent() {
   // 캘린더 아래 화살표 점등: 아이템 있는 날 클릭 시 3초 후 사라짐
   const [showCalendarDownArrow, setShowCalendarDownArrow] = useState(false);
 
+  // 로그아웃 중 상태
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
   // Insights 탭: 미완성이라 숨김. true로 바꾸면 탭 노출
   const SHOW_INSIGHTS_TAB = false;
 
@@ -313,6 +316,7 @@ function DashboardContent() {
   }, []);
 
   const handleSignOut = async () => {
+    setIsSigningOut(true);
     await signOut();
     router.push('/');
   };
@@ -518,7 +522,12 @@ function DashboardContent() {
   if (authLoading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="animate-spin rounded-full h-10 w-10 border-2 border-slate-200 border-t-blue-600"></div>
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-slate-200 border-t-blue-600"></div>
+          {isSigningOut && (
+            <p className="text-slate-600 text-sm font-medium">Signing out...</p>
+          )}
+        </div>
       </div>
     );
   }
