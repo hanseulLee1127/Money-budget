@@ -32,12 +32,8 @@ function DashboardContent() {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'transactions' | 'calendar' | 'insights'>('overview');
   
-  // 월별 필터 상태 (localStorage에서 읽거나 현재 달)
+  // 월별 필터 상태 (항상 현재 달로 시작)
   const [selectedMonth, setSelectedMonth] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('selectedMonth');
-      if (saved) return saved;
-    }
     return format(new Date(), 'yyyy-MM');
   });
   
@@ -307,7 +303,6 @@ function DashboardContent() {
     setSelectedMonth(currentMonth);
     setSelectedDate(null);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('selectedMonth', currentMonth);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, []);
@@ -365,15 +360,13 @@ function DashboardContent() {
       const currentMonth = format(new Date(), 'yyyy-MM');
       sorted.push(currentMonth);
     }
-    return sorted;
-  }, [confirmedTransactions]);
-
-  // selectedMonth 변경 시 localStorage에 저장
-  useEffect(() => {
-    if (selectedMonth && typeof window !== 'undefined') {
-      localStorage.setItem('selectedMonth', selectedMonth);
+    // selectedMonth가 리스트에 없으면 추가 (데이터 없는 달도 표시 가능하게)
+    if (selectedMonth && !sorted.includes(selectedMonth)) {
+      sorted.push(selectedMonth);
+      sorted.sort().reverse();
     }
-  }, [selectedMonth]);
+    return sorted;
+  }, [confirmedTransactions, selectedMonth]);
 
   // 선택된 월의 거래
   const monthlyTransactions = useMemo(() => {
@@ -598,11 +591,14 @@ function DashboardContent() {
                 }}
                 className="px-4 py-2.5 border border-slate-200 rounded-xl bg-white text-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-medium"
               >
-                {availableMonths.map((month) => (
-                  <option key={month} value={month}>
-                    {formatMonth(month)}
-                  </option>
-                ))}
+                {availableMonths.map((month) => {
+                  const hasData = confirmedTransactions.some((t) => t.date?.startsWith(month));
+                  return (
+                    <option key={month} value={month}>
+                      {formatMonth(month)}{!hasData ? ' -' : ''}
+                    </option>
+                  );
+                })}
               </select>
 
               <button
