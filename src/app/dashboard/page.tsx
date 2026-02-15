@@ -678,8 +678,8 @@ function DashboardContent() {
           </div>
         </div>
 
-        {/* Empty State - 거래가 없을 때 */}
-        {confirmedTransactions.length === 0 && activeTab === 'overview' && (
+        {/* Empty State - 거래가 없을 때 (로딩 완료 후에만 표시) */}
+        {!loading && confirmedTransactions.length === 0 && activeTab === 'overview' && (
           <div className="bg-white rounded-2xl p-8 sm:p-12 text-center shadow-sm border border-slate-100 max-w-2xl mx-auto">
             <div className="w-20 h-20 mx-auto mb-6 bg-blue-50 rounded-2xl flex items-center justify-center">
               <svg className="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -707,8 +707,8 @@ function DashboardContent() {
           </div>
         )}
 
-        {/* 요약 카드와 총계는 캘린더 및 Insights 탭에서 숨김 */}
-        {confirmedTransactions.length > 0 && activeTab !== 'calendar' && activeTab !== 'insights' && (
+        {/* 요약 카드와 총계는 캘린더 및 Insights 탭에서 숨김 (로딩 완료 후에만 표시) */}
+        {!loading && confirmedTransactions.length > 0 && activeTab !== 'calendar' && activeTab !== 'insights' && (
           <>
             {/* 요약 카드 - 클릭 가능 */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
@@ -847,7 +847,7 @@ function DashboardContent() {
           </>
         )}
 
-        {activeTab === 'overview' && confirmedTransactions.length > 0 && (
+        {activeTab === 'overview' && !loading && confirmedTransactions.length > 0 && (
           <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
             {/* 카테고리별 파이 차트 */}
             <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-100 [&_*]:outline-none min-w-0">
