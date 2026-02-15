@@ -42,7 +42,10 @@ function DashboardContent() {
   
   // 카드 클릭 필터 상태
   const [cardFilter, setCardFilter] = useState<'all' | 'spending' | 'income' | 'count' | null>(null);
-  
+
+  // 로그아웃 진행 중 상태
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
   // 캘린더에서 선택된 날짜
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   // 캘린더 아래 화살표 점등: 아이템 있는 날 클릭 시 3초 후 사라짐
@@ -308,6 +311,8 @@ function DashboardContent() {
   }, []);
 
   const handleSignOut = async () => {
+    setIsSigningOut(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
     await signOut();
     router.push('/');
   };
@@ -508,10 +513,13 @@ function DashboardContent() {
     }
   }, [selectedDate, selectedDateTransactions.length]);
 
-  if (authLoading || !user) {
+  if (authLoading || !user || isSigningOut) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-4">
         <div className="animate-spin rounded-full h-10 w-10 border-2 border-slate-200 border-t-blue-600"></div>
+        {isSigningOut && (
+          <p className="text-slate-600 text-sm font-medium">Signing out...</p>
+        )}
       </div>
     );
   }
@@ -594,8 +602,12 @@ function DashboardContent() {
                 {availableMonths.map((month) => {
                   const hasData = confirmedTransactions.some((t) => t.date?.startsWith(month));
                   return (
-                    <option key={month} value={month}>
-                      {formatMonth(month)}{!hasData ? ' -' : ''}
+                    <option
+                      key={month}
+                      value={month}
+                      className={!hasData ? 'text-slate-400' : ''}
+                    >
+                      {formatMonth(month)}{!hasData ? ' (No data)' : ''}
                     </option>
                   );
                 })}
