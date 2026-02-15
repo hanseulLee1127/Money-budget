@@ -85,19 +85,16 @@ export function useAuth(): UseAuthReturn {
     }
   };
 
-  // 로그아웃 (1초 로딩 후 로그아웃)
+  // 로그아웃 (낙관적 업데이트: 즉시 로그아웃 상태로 전환)
   const signOut = async (): Promise<void> => {
-    // 로딩 상태로 전환 (Signing out 메시지 표시)
-    setState((prev) => ({ ...prev, loading: true, error: null }));
+    // 즉시 로그아웃 상태로 전환 (UI가 바로 반응)
+    setState((prev) => ({ ...prev, user: null, loading: false, error: null }));
 
-    // 백그라운드에서 Firebase 로그아웃 처리 시작
+    // 백그라운드에서 Firebase 로그아웃 처리 (await 없이)
     firebaseSignOut(auth).catch((error) => {
       console.error('Background sign out error:', error);
+      // 에러가 발생해도 이미 UI는 로그아웃 상태이므로 사용자 경험에 영향 없음
     });
-
-    // 1초 대기 후 로그아웃 상태로 전환
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setState((prev) => ({ ...prev, user: null, loading: false }));
   };
 
   // 비밀번호 재설정 이메일 전송
